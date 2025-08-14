@@ -1,0 +1,92 @@
+// import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+// import cookieParser from "cookie-parser";
+// import cors from "cors";
+// import dotenv from "dotenv";
+// import express, { NextFunction, Request, Response } from "express";
+// import fs from "fs";
+// import helmet from "helmet";
+// import { JsonWebTokenError } from "jsonwebtoken";
+// import morgan from "morgan";
+// import path from "path";
+// import config from "root/src/config/env";
+// import { AppError } from "./src/utils/error";
+// dotenv.config();
+
+
+
+// const app = express();
+
+// // Directory to create
+// const uploadDir = path.join(__dirname, 'src/uploads/reports');
+
+// // Create the directory if it doesn't exist
+// if (!fs.existsSync(uploadDir)) {
+//    fs.mkdirSync(uploadDir, { recursive: true });
+//    console.log('Created uploads directory');
+// }
+
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+// app.use(cookieParser());
+// app.use(
+//    cors({
+//       origin: ["localhost:3000", "localhost:3001", "localhost:3002"],
+//       credentials: true,
+//    })
+// );
+// app.use(
+//    helmet({
+//       crossOriginResourcePolicy: false,
+//       referrerPolicy: false,
+//    })
+// );
+// const format = config.nodeEnv === "production" ? "combined" : "dev";
+// app.use(morgan(format));
+// app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
+//    res.send("Welcome to Revlinks Assets Management Application");
+// });
+
+// //API routes
+// app.use()
+
+// app.use((_req: Request, res: Response, _next: NextFunction) => {
+//    res.status(404).send("Route not found");
+// });
+
+// app.use((error: AppError, _req: Request, res: Response, _next: NextFunction): void => {
+//    console.log(error);
+//    console.log(error.message);
+
+//    if (error instanceof JsonWebTokenError) {
+//       res.status(401).json({ error: `Invalid token` });
+//       return;
+//    }
+
+//    if (error instanceof PrismaClientKnownRequestError) {
+//       if (error.code === "P2002") {
+//          res.status(400).json({ error: `Duplicate ${error.meta?.target}` });
+//          return;
+//       }
+
+//       if (error.code === "P2003") {
+//          res.status(400).json({
+//             error: `Invalid ${error.meta?.field_name} provided`,
+//          });
+//          return;
+//       }
+
+//       if (error.code === "P2025") {
+//          res.status(400).json({
+//             error: error.meta?.modelName ? `Couldn't find ${error.meta?.modelName}` : (error.meta?.cause ?? error.message),
+//          });
+//          return;
+//       }
+//    }
+
+//    res.status(error.statusCode ?? 400).json({
+//       error: error.message,
+//       ...(error.data && { data: error.data }),
+//    });
+// });
+
+// export default app;

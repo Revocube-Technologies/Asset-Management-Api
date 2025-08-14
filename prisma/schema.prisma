@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Asset {
+  id             String         @id @default(uuid())
+  name           String
+  type           String
+  serialNumber   String         @unique
+  price          Int
+  image          String
+  purchaseDate   DateTime
+  warrantyExpiry DateTime?
+  status         String         @default("available")
+  locationId     String
+  notes          String?
+  purchaseType   purchaseStatus @default(NEW)
+
+  location    Location?       @relation(fields: [locationId], references: [id])
+  assignments AssetAssigned[]
+  repairs     RepairLog[]
+
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  RequestLog RequestLog[]
+}
+
+model AssetAssigned {
+  id                    String    @id @default(uuid())
+  assetId               String
+  assignedById          String
+  assignedDate          DateTime
+  employeeName          String
+  returnDate            DateTime?
+  conditionAtAssignment String?
+  conditionAtReturn     String?
+  departmentId          String?
+
+  department Department? @relation(fields: [departmentId], references: [id])
+  asset      Asset       @relation(fields: [assetId], references: [id])
+  assignedBy Admin       @relation(fields: [assignedById], references: [id])
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Admin {
+  id                   String    @id @default(uuid())
+  firstName            String
+  lastName             String?
+  email                String    @unique
+  phoneNumber          String?
+  status               String    @default("active")
+  roleId               String?
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+
+  role            Role?           @relation(fields: [roleId], references: [id])
+  requestLogs     RequestLog[]
+  permissions     String[]
+  assignments     AssetAssigned[]
+  reportedRepairs RepairLog[]
+  auditLogs       AuditLog[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model Department {
+  id   String @id @default(uuid())
+  name String @unique
+
+  assignments AssetAssigned[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  RequestLog  RequestLog[]
+}
+
+model Location {
+  id      String  @id @default(uuid())
+  name    String  @unique
+  address String?
+
+  assets    Asset[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RequestLog {
+  id           String   @id @default(uuid())
+  adminId      String
+  assetId      String
+  employeeName String
+  departmentId String?
+  requestDate  DateTime @default(now())
+  description  String?
+
+  asset      Asset?      @relation(fields: [assetId], references: [id])
+  department Department? @relation(fields: [departmentId], references: [id])
+  admin      Admin       @relation(fields: [adminId], references: [id])
+  repairLogs RepairLog[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model RepairLog {
+  id           String   @id @default(uuid())
+  adminId      String
+  assetId      String
+  repairDate   DateTime @default(now())
+  description  String?
+  repairCost   Float?
+  repairedBy   String?
+  repairStatus String   @default("pending")
+  requestLogId String?
+
+  asset      Asset?      @relation(fields: [assetId], references: [id])
+  requestLog RequestLog? @relation(fields: [requestLogId], references: [id])
+  admin      Admin       @relation(fields: [adminId], references: [id])
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  permissions String[]
+  isDeleted   Boolean  @default(false)
+
+  admins    Admin[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  adminId   String
+  ipAddress String
+  action    String
+  request   Json
+  response  Json
+  timeElapsed Int
+  
+  timestamp DateTime @default(now())
+  admin     Admin    @relation(fields: [adminId], references: [id])
+}
+
+enum purchaseStatus {
+  NEW
+  USED
+}
