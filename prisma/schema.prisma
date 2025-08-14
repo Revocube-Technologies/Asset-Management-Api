@@ -58,6 +58,7 @@ model Admin {
   roleId               String?
   passwordResetToken   String?
   passwordResetExpires DateTime?
+  isEnabled Boolean @default(true)
 
   role            Role?           @relation(fields: [roleId], references: [id])
   requestLogs     RequestLog[]
