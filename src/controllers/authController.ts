@@ -1,26 +1,78 @@
-import { generatePaginationMeta } from "./../assets/functions";
 import { Request, Response } from "express";
 import {
-  CreateAdminType,
-  ForgotPasswordType,
-  GetAdminType,
-  ResetPasswordType,
-  AdminLoginType,
-  UpdateAdminStatusType,
-  UpdateAdminType,
-} from "root/src/validation/adminValidation";
+  TGetAllAdminsType,
+  TResetPasswordType,
+  TForgotPasswordType,
+  TCreateAdminType,
+  TUpdateAdminType,
+  TAdminLoginType,
+  TGetAdminByIdType,
+  TAdminUpdatePasswordType,
+} from "root/src/validation/adminValidator";
 import prisma from "../prisma";
-import { exclude } from "root/src/utils/function";
+import { Admin } from "@prisma/client";
 import bcrypt from "bcrypt";
 import OTP from "otp-generator";
 import catchAsync from "root/src/utils/catchAsync";
 import { AppError } from "root/src/utils/error";
 import jwt from "jsonwebtoken";
 import codes from "root/src/utils/statusCode";
-import env from "root/src/onfig/env";
+import config from "root/src/onfig/env";
 import { COMPULSORY_PERMISSIONS } from "../assets/constants";
+import {
+  generatePaginationQuery,
+  generatePaginationMeta,
+} from "../utils/query";
+import { comparePassword, getFrontendUrl } from "../utils/function";
+import { generateResetToken } from "../utils/token";
+import crypto from "crypto";
 
-const secret = env.JWT_SECRET || "my-secret-key";
+// const secret = env.JWT_SECRET || "my-secret-key";
+
+const generateUserToken = (user: Admin) => {
+  return jwt.sign(
+    {
+      id: user.id,
+      permissions: user.permissions,
+      role: "admin",
+    },
+    config.jwtSecret,
+    {
+      expiresIn: "1d",
+    }
+  );
+};
+
+const createSendToken = (
+  user: Admin,
+  status: "success",
+  statuscode: number,
+  res: Response,
+  message: string
+) => {
+  const token = generateUserToken(user);
+
+  const cookieExpires = Number(config.jwtCookieExpires) || 1;
+  const cookieOptions = {
+    expires: new Date(Date.now() + cookieExpires * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    sameSite: "none" as const,
+    secure: true,
+  };
+
+  if (config.nodeEnv === "production") cookieOptions.secure = true;
+
+  res.cookie("jwt", token, cookieOptions);
+
+  res.status(statuscode).json({
+    status,
+    message,
+    token,
+    data: {
+      user,
+    },
+  });
+};
 
 export const createAdmin = catchAsync(async (req: Request, res: Response) => {
   const {
@@ -31,9 +83,9 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     password: unhashedPassword,
     roleId,
     permissions: requestPermissions = [],
-  } = req.body as unknown as CreateAdminType;
+  } = req.body as unknown as TCreateAdminType;
 
-  const role = await prisma.role.findUniqueOrThrow({
+  const role = await prisma.role.findUnique({
     where: { id: roleId },
   });
 
@@ -79,7 +131,7 @@ export const updateAdmin = catchAsync(async (req: Request, res: Response) => {
     phoneNumber,
     roleId,
     permissions: requestPermissions = [],
-  } = req.body as unknown as UpdateAdminType;
+  } = req.body as unknown as TUpdateAdminType;
 
   const permissionSet = new Set([
     ...requestPermissions,
@@ -95,72 +147,144 @@ export const updateAdmin = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.success).json({ status: "success", user: admin });
 });
 
-export const adminLogin = catchAsync(async (req: Request, res: Response) => {
-  const { email, password } = req.body as unknown as AdminLoginType;
+export const loginAdmin = catchAsync(async (req: Request, res: Response) => {
+  const { email, password } = req.body as unknown as TAdminLoginType;
 
-  const admin = await prisma.admin.findUniqueOrThrow({
-    where: { email },
-    include: {
-      role: true,
-      store: true,
-    },
+  const admin = await prisma.admin.findUnique({
+    where: { email: email },
   });
 
-  if (!admin.isEnabled) throw new AppError("Your account isn't enabled", 400);
+  if (!admin) {
+    throw new AppError(codes.badRequest, "Admin does not exist");
+  }
 
-  if (!(await bcrypt.compare(password, admin.password)))
-    throw new AppError("Invalid credentials", 400);
+  const isPasswordCorrect = await comparePassword(password, admin.password);
+  if (!isPasswordCorrect) {
+    throw new AppError(codes.unAuthorized, "Incorrect Password");
+  }
 
-  const token = jwt.sign(
-    {
-      id: admin.id,
-      email: admin.email,
-      permissions: admin.role.permissions,
-    },
-    secret,
-    { expiresIn: "2d" }
+  createSendToken(
+    admin,
+    "success",
+    codes.success,
+    res,
+    `Login Successful, Welcome, ${admin.fullName}`
   );
-
-  res.json({
-    message: "Admin logged in",
-    user: exclude(admin, ["password", "code"]),
-    token,
-  });
 });
 
 export const adminForgotPassword = catchAsync(
   async (req: Request, res: Response) => {
-    const { email } = req.body as unknown as ForgotPasswordType;
+    const { email } = req.body as unknown as TForgotPasswordType;
 
-    const admin = await prisma.admin.findUniqueOrThrow({
-      where: { email },
+    const admin = await prisma.admin.findUnique({ where: { email: email } });
+
+    if (!admin)
+      throw new AppError(codes.notFound, "Admin Username/Email not found");
+
+    const { resetToken, hashedToken, tokenExpiration } =
+      await generateResetToken();
+
+    await prisma.admin.update({
+      where: { id: admin.id },
+      data: {
+        passwordResetToken: hashedToken,
+        passwordResetExpiresAt: tokenExpiration,
+      },
     });
 
-    const token = jwt.sign({ email: email, id: admin.id }, secret, {
-      expiresIn: "1h",
+    const passwordResetUrl = getFrontendUrl(
+      `/api/v1/admin/auth/reset-password/:${resetToken}}`
+    );
+
+    //TODO: add email sendAdminResetPassword
+
+    res.status(codes.success).json({
+      status: "success",
+      message: `Password reset token sent to ${admin.email}`,
+      data: {
+        resetToken,
+        setUrl: passwordResetUrl,
+      },
     });
-
-    // TODO: Add email sending logic here
-
-    res.json({ message: "Email sent successfully" });
   }
 );
 
 export const adminResetPassword = catchAsync(
   async (req: Request, res: Response) => {
-    const { token, password: unhashedPassword } =
-      req.body as unknown as ResetPasswordType;
+    const { password } = req.body as unknown as TResetPasswordType;
 
-    const decoded = jwt.verify(token, secret) as { id: string; email: string };
+    const { token } = req.params;
 
-    const password = await bcrypt.hash(unhashedPassword, 12);
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    await prisma.admin.update({
-      where: { id: decoded.id },
-      data: { password },
+    const admin = await prisma.admin.findFirst({
+      where: {
+        passwordResetToken: hashedToken,
+        passwordResetExpiresAt: {
+          gt: new Date(),
+        },
+      },
     });
 
-    res.json({ message: "Password reset successfully" });
+    if (!admin)
+      throw new AppError(codes.badRequest, "Invalid or Expired Token");
+
+    const newPassword = await bcrypt.hash(password, 12);
+
+    await prisma.admin.update({
+      where: { id: admin.id },
+      data: {
+        password: newPassword,
+        passwordResetToken: null,
+        passwordResetExpiresAt: null,
+      },
+    });
+
+    res.status(codes.success).json({
+      status: "success",
+      message: `Password reset for Admin: ${admin.email} successful. Kindly log in.`,
+    });
+  }
+);
+
+export const adminUpdatePassword = catchAsync(
+  async (req: Request, res: Response) => {
+    const { oldPassword, newPassword } =
+      req.body as unknown as TAdminUpdatePasswordType;
+    const { id } = req.params;
+    const admin = await prisma.admin.findUnique({
+      where: { id },
+    });
+
+    if (!admin) {
+      throw new AppError(codes.notFound, "Admin not found");
+    }
+
+    const isPasswordCorrect = await comparePassword(
+      oldPassword,
+      admin.password
+    );
+
+    if (!isPasswordCorrect)
+      throw new AppError(codes.badRequest, "Password is incorrect, try again");
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 12);
+
+    await prisma.admin.update({
+      where: { id },
+      data: {
+        password: newPasswordHash,
+      },
+    });
+
+    res.status(codes.success).json({
+      status: "success",
+      message: `Password updated for Admin: ${admin.email} successfully`,
+      data: {
+        id: admin.id,
+        email: admin.email,
+      },
+    });
   }
 );
 
@@ -200,7 +324,7 @@ export const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getAdminById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params as unknown as TGetAllAdminByIdType;
+  const { id } = req.params as unknown as TGetAdminByIdType;
 
   const admin = await prisma.admin.findUnique({
     where: { id },
