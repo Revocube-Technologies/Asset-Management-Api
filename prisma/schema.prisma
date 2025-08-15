@@ -20,7 +20,7 @@ model Asset {
   locationId     String
   notes          String?
   purchaseType   purchaseStatus @default(NEW)
-  isDeleted     Boolean        @default(false)
+  isDeleted      Boolean        @default(false)
 
   location    Location?       @relation(fields: [locationId], references: [id])
   assignments AssetAssigned[]

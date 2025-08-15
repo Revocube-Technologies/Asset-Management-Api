@@ -1,4 +1,4 @@
-import { purchaseStatus } from "@prisma/client";
+import { purchaseStatus, Prisma, $Enums } from "@prisma/client";
 import { AppError } from "root/src/utils/error";
 import prisma from "root/prisma";
 import { Request, Response } from "express";
@@ -10,6 +10,13 @@ import {
   generatePaginationQuery,
   generatePaginationMeta,
 } from "root/src/utils/query";
+import {
+  TChangeAssetStatusType,
+  TCreateAssetType,
+  TGetAllAssetsType,
+  TGetAssetByIdType,
+  TUpdateAssetType,
+} from "../validation/assetValidator";
 
 export const createAsset = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
@@ -23,20 +30,9 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
     locationId,
     notes,
     purchaseType,
-  } = req.body;
+  } = req.body as unknown as TCreateAssetType;
 
   const imageFile = req.file;
-
-  if (![name, type, price, purchaseDate, locationId].every(Boolean)) {
-    throw new AppError(
-      codes.badRequest,
-      "All required fields must be provided"
-    );
-  }
-
-  if (purchaseType && !Object.values(purchaseStatus).includes(purchaseType)) {
-    throw new AppError(codes.badRequest, "Invalid purchase type");
-  }
 
   const serialNumber = await generateSerialNumber();
 
@@ -50,14 +46,14 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       name,
       type,
       serialNumber,
-      price: parseInt(price),
+      price,
       image: imageUrl,
       purchaseDate: new Date(purchaseDate),
       warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : null,
       status: "Available",
       locationId,
       notes,
-      purchaseType: purchaseType || purchaseStatus.NEW,
+      purchaseType: purchaseType,
     },
   });
 
@@ -77,63 +73,36 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-interface GetAllAssetsQuery {
-  page?: string;
-  perPage?: string;
-  status?: string;
-  type?: string;
-  locationId?: string;
-}
+export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
+  const { page, perPage, status, type, locationId } =
+    req.query as unknown as TGetAllAssetsType;
 
-export const getAllAssets = catchAsync(
-  async (req: Request<{}, {}, {}, GetAllAssetsQuery>, res: Response) => {
-    const { page = "1", perPage = "10", status, type, locationId } = req.query;
+  const totalAssets = await prisma.asset.findMany({
+    where: {
+      isDeleted: false,
+    },
+    orderBy: { createdAt: "desc" },
+    ...generatePaginationQuery({
+      page,
+      perPage,
+    }),
+  });
 
-    const numericPage = Math.max(parseInt(page, 10), 1);
-    const numericPerPage = Math.max(parseInt(perPage, 10), 1);
+  const pagination = generatePaginationMeta({
+    page,
+    perPage,
+    count: totalAssets.length,
+  });
 
-    const where: {
-      status?: string;
-      type?: string;
-      locationId?: string;
-      isDeleted: boolean;
-    } = { isDeleted: false };
-
-    if (status) where.status = status;
-    if (type) where.type = type;
-    if (locationId) where.locationId = locationId;
-
-    const totalAssets = await prisma.asset.count({ where });
-
-    const assets = await prisma.asset.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      ...generatePaginationQuery({
-        page: numericPage,
-        perPage: numericPerPage,
-      }),
-      include: {
-        location: true,
-      },
-    });
-
-    const pagination = generatePaginationMeta({
-      page: numericPage,
-      perPage: numericPerPage,
-      count: totalAssets,
-    });
-
-    res.status(codes.success).json({
-      status: "success",
-      ...pagination,
-      results: assets.length,
-      assets,
-    });
-  }
-);
+  res.status(codes.success).json({
+    status: "success",
+    ...pagination,
+    results: totalAssets,
+  });
+});
 
 export const getAssetById = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as unknown as TGetAssetByIdType;
 
   const asset = await prisma.asset.findUnique({
     where: { id, isDeleted: false },
@@ -156,13 +125,31 @@ export const getAssetById = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const updateAsset = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const { id } = req.params as unknown as TUpdateAssetType;
   const adminId = req.admin?.id;
-  const updateData = req.body;
+  const {
+    name,
+    type,
+    price,
+    purchaseDate,
+    warrantyExpiry,
+    locationId,
+    notes,
+    purchaseType,
+  } = req.body as unknown as TUpdateAssetType;
 
   const asset = await prisma.asset.update({
     where: { id, isDeleted: false },
-    data: updateData,
+    data: {
+      name,
+      type,
+      price,
+      purchaseDate,
+      warrantyExpiry,
+      locationId,
+      notes,
+      purchaseType,
+    },
   });
 
   await prisma.assetLog.create({
@@ -184,13 +171,8 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
 export const changeAssetStatus = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status } = req.body as unknown as TChangeAssetStatusType;
     const adminId = req.admin?.id;
-
-    const validStatuses = ["available", "assigned", "under_repair", "disposed"];
-    if (!validStatuses.includes(status)) {
-      throw new AppError(codes.badRequest, "Invalid asset status");
-    }
 
     const asset = await prisma.asset.update({
       where: { id, isDeleted: false },

@@ -17,21 +17,10 @@ const envSchema = Yup.object({
 
    FRONTEND_URL: Yup.string().url(),
 
-   EMAIL_HOST: Yup.string().required(),
-   EMAIL_PORT: Yup.number().required(),
-   EMAIL_USER: Yup.string().required(),
-   EMAIL_PASS: Yup.string().required(),
+   CLOUD_NAME: Yup.string().optional(),
+   API_KEY: Yup.string().optional(),
+   API_SECRET: Yup.string().optional(),
 
-   CLOUD_NAME: Yup.string().required(),
-   API_KEY: Yup.string().required(),
-   API_SECRET: Yup.string().required(),
-
-   IMAGE_URL: Yup.string().required(),
-   X_URL: Yup.string().required(),
-   FACEBOOK_URL: Yup.string().required(),
-   INSTAGRAM_URL: Yup.string().required(),
-   LINKEDIN_URL: Yup.string().required(),
-   UNSUBSCRIBE_URL: Yup.string().required(),
 }).noUnknown(true);
 
 const envVars = envSchema.validateSync(process.env, {
@@ -50,24 +39,12 @@ const config = {
    jwtSecret: envVars.JWT_SECRET,
    jwtTokenExpires: envVars.JWT_TOKEN_EXPIRES,
    jwtCookieExpires: envVars.JWT_COOKIE_EXPIRES,
-   frontendUrl: envVars.FRONTEND_URL,
 
-   emailHost: envVars.EMAIL_HOST,
-   emailPort: envVars.EMAIL_PORT,
-   emailUser: envVars.EMAIL_USER,
-   emailPass: envVars.EMAIL_PASS,
 
    cloudName: envVars.CLOUD_NAME,
    apiKey: envVars.API_KEY,
    apiSecret: envVars.API_SECRET,
 
-
-   imageUrl: envVars.IMAGE_URL,
-   xUrl: envVars.X_URL,
-   facebookUrl: envVars.FACEBOOK_URL,
-   instagramUrl: envVars.INSTAGRAM_URL,
-   linkedinUrl: envVars.LINKEDIN_URL,
-   unsubscribeUrl: envVars.UNSUBSCRIBE_URL,
 };
 
 export default config;

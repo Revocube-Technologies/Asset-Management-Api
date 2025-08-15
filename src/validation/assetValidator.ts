@@ -9,15 +9,15 @@ export const createAssetValidator = Yup.object().shape({
   warrantyExpiry: Yup.date().nullable(),
   locationId: Yup.string().required("Asset location is required"),
   notes: Yup.string().nullable(),
-  purchaseType: Yup.string().required("Asset purchase type is required"),
+  purchaseType: Yup.string().oneOf(Object.values(purchaseStatus)).required("Asset purchase type is required"),
 })
 
 export const getAllAssetsValidator = Yup.object().shape({
-  page: Yup.string().nullable(),
-  perPage: Yup.string().nullable(),
-  status: Yup.string().nullable(),
-  type: Yup.string().nullable(),
-  locationId: Yup.string().nullable(),
+  page: Yup.number().required("Page number is required"),
+  perPage: Yup.number().required("Items per page is required"),
+  status: Yup.string().required("Asset status is required"),
+  type: Yup.string().required("Asset type is required"),
+  locationId: Yup.string().required("Asset location is required"),
 })
 
 export const getAssetByIdValidator = Yup.object().shape({
