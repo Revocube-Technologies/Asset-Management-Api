@@ -1,4 +1,3 @@
-import { purchaseStatus, Prisma, $Enums } from "@prisma/client";
 import { AppError } from "root/src/utils/error";
 import prisma from "root/prisma";
 import { Request, Response } from "express";
