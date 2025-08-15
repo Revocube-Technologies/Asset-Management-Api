@@ -3,7 +3,7 @@ import prisma from "root/prisma";
 import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
-import { TCreateDepartmentType, TGetAllDepartmentType, TGetDepartmentType } from "../validation/departmentValidator";
+import { TCreateDepartmentType, TGetAllDepartmentType, TGetDepartmentType, TUpdateDepartmentType } from "../validation/departmentValidator";
 
 export const createDepartment = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
@@ -80,7 +80,7 @@ export const updateDepartment = catchAsync(async (req: Request, res: Response) =
   const adminId = req.admin?.id;
   const {
     name
-  } = req.body as unknown as TCreateDepartmentType;
+  } = req.body as unknown as TUpdateDepartmentType;
 
   const department = await prisma.department.update({
     where: { id },

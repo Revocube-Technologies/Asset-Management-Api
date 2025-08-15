@@ -16,8 +16,8 @@ declare global {
   }
 }
 
-const protectRoute = catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
-  let token: string | undefined;
+export const protectRoute = catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
+  let token: string;
 
   if (config.nodeEnv === "development") {
     const authHeader = req.headers.authorization;
@@ -40,7 +40,7 @@ const protectRoute = catchAsync(async (req: Request, _res: Response, next: NextF
 
   req.admin = admin;
 
-  return next();
+  next()
+
 });
 
-export default protectRoute;
