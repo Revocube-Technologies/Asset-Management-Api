@@ -22,11 +22,9 @@ const envSchema = Yup.object({
    EMAIL_USER: Yup.string().required(),
    EMAIL_PASS: Yup.string().required(),
 
-   AWS_REGION: Yup.string().required(),
-   AWS_BUCKET_NAME: Yup.string().required(),
-   AWS_ENDPOINT: Yup.string().required(),
-   AWS_ACCESS_KEY: Yup.string().required(),
-   AWS_SECRET_KEY: Yup.string().required(),
+   CLOUD_NAME: Yup.string().required(),
+   API_KEY: Yup.string().required(),
+   API_SECRET: Yup.string().required(),
 
    IMAGE_URL: Yup.string().required(),
    X_URL: Yup.string().required(),
@@ -59,11 +57,10 @@ const config = {
    emailUser: envVars.EMAIL_USER,
    emailPass: envVars.EMAIL_PASS,
 
-   awsRegion: envVars.AWS_REGION,
-   awsBucketName: envVars.AWS_BUCKET_NAME,
-   awsEndpoint: envVars.AWS_ENDPOINT,
-   awsAccessKey: envVars.AWS_ACCESS_KEY,
-   awsSecretKey: envVars.AWS_SECRET_KEY,
+   cloudName: envVars.CLOUD_NAME,
+   apiKey: envVars.API_KEY,
+   apiSecret: envVars.API_SECRET,
+
 
    imageUrl: envVars.IMAGE_URL,
    xUrl: envVars.X_URL,

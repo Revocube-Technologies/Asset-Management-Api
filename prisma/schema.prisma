@@ -16,7 +16,7 @@ model Asset {
   image          String
   purchaseDate   DateTime
   warrantyExpiry DateTime?
-  status         String         @default("available")
+  status         AssetStatus    @default(Available)
   locationId     String
   notes          String?
   purchaseType   purchaseStatus @default(NEW)
@@ -28,6 +28,7 @@ model Asset {
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
   RequestLog RequestLog[]
+  AssetLog   AssetLog[]
 }
 
 model AssetAssigned {
@@ -54,11 +55,11 @@ model Admin {
   lastName             String?
   email                String    @unique
   phoneNumber          String?
-  status               String    @default("active")
+  status               String    @default("Active")
   roleId               String?
   passwordResetToken   String?
   passwordResetExpires DateTime?
-  isEnabled Boolean @default(true)
+  isEnabled            Boolean   @default(true)
 
   role            Role?           @relation(fields: [roleId], references: [id])
   requestLogs     RequestLog[]
@@ -68,6 +69,7 @@ model Admin {
   auditLogs       AuditLog[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+  AssetLog        AssetLog[]
 }
 
 model Department {
@@ -91,13 +93,14 @@ model Location {
 }
 
 model RequestLog {
-  id           String   @id @default(uuid())
-  adminId      String
-  assetId      String
-  employeeName String
-  departmentId String?
-  requestDate  DateTime @default(now())
-  description  String?
+  id            String        @id @default(uuid())
+  adminId       String
+  assetId       String
+  employeeName  String
+  departmentId  String?
+  requestDate   DateTime      @default(now())
+  description   String?
+  requestStatus RequestStatus @default(Pending)
 
   asset      Asset?      @relation(fields: [assetId], references: [id])
   department Department? @relation(fields: [departmentId], references: [id])
@@ -108,14 +111,14 @@ model RequestLog {
 }
 
 model RepairLog {
-  id           String   @id @default(uuid())
+  id           String       @id @default(uuid())
   adminId      String
   assetId      String
-  repairDate   DateTime @default(now())
+  repairDate   DateTime     @default(now())
   description  String?
   repairCost   Float?
   repairedBy   String?
-  repairStatus String   @default("pending")
+  repairStatus RepairStatus @default(Pending)
   requestLogId String?
 
   asset      Asset?      @relation(fields: [assetId], references: [id])
@@ -126,25 +129,38 @@ model RepairLog {
 }
 
 model Role {
-  id          String   @id @default(uuid())
-  name        String   @unique
+  id          String    @id @default(uuid())
+  name        String    @unique
   permissions String[]
-  isDeleted   Boolean  @default(false)
+  isDeleted   Boolean   @default(false)
+  role        AdminRole @default(admin)
 
   admins    Admin[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+model AssetLog {
+  id          String         @id @default(uuid())
+  assetId     String
+  adminId     String?
+  eventType   AssetEventType
+  description String?
+  eventDate   DateTime       @default(now())
+
+  asset Asset  @relation(fields: [assetId], references: [id])
+  admin Admin? @relation(fields: [adminId], references: [id])
+}
+
 model AuditLog {
-  id        String   @id @default(uuid())
-  adminId   String
-  ipAddress String
-  action    String
-  request   Json
-  response  Json
+  id          String @id @default(uuid())
+  adminId     String
+  ipAddress   String
+  action      String
+  request     Json
+  response    Json
   timeElapsed Int
-  
+
   timestamp DateTime @default(now())
   admin     Admin    @relation(fields: [adminId], references: [id])
 }
@@ -153,3 +169,45 @@ enum purchaseStatus {
   NEW
   USED
 }
+
+enum AssetStatus {
+  Available
+  Assigned
+  UnderRepair
+  Retired
+}
+
+enum AdminRole {
+  admin
+  superAdmin
+}
+
+enum AdminStatus {
+  Active
+  Inactive
+  Suspended
+}
+
+enum RepairStatus {
+  Pending
+  InProgress
+  Completed
+  Cancelled
+}
+
+enum RequestStatus {
+  Pending
+  Approved
+  Declined
+}
+
+enum AssetEventType {
+  Created
+  Assigned
+  Returned
+  RepairRequested
+  RepairStarted
+  RepairCompleted
+  Disposed
+}
+

@@ -9,7 +9,7 @@ import {
   TGetAdminByIdType,
   TAdminUpdatePasswordType,
 } from "root/src/validation/adminValidator";
-import prisma from "../prisma";
+import prisma from "root/prisma";
 import { Admin } from "@prisma/client";
 import bcrypt from "bcrypt";
 import OTP from "otp-generator";
@@ -17,8 +17,8 @@ import catchAsync from "root/src/utils/catchAsync";
 import { AppError } from "root/src/utils/error";
 import jwt from "jsonwebtoken";
 import codes from "root/src/utils/statusCode";
-import config from "root/src/onfig/env";
-import { COMPULSORY_PERMISSIONS } from "../assets/constants";
+import config from "root/src/config/env";
+import { COMPULSORY_PERMISSIONS } from "root/src/assets/permissions";
 import {
   generatePaginationQuery,
   generatePaginationMeta,
@@ -26,8 +26,6 @@ import {
 import { comparePassword, getFrontendUrl } from "../utils/function";
 import { generateResetToken } from "../utils/token";
 import crypto from "crypto";
-
-// const secret = env.JWT_SECRET || "my-secret-key";
 
 const generateUserToken = (user: Admin) => {
   return jwt.sign(
