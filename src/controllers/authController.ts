@@ -18,11 +18,11 @@ import { AppError } from "root/src/utils/error";
 import jwt from "jsonwebtoken";
 import codes from "root/src/utils/statusCode";
 import config from "root/src/config/env";
-import { COMPULSORY_PERMISSIONS } from "root/src/assets/permissions";
+// import { COMPULSORY_PERMISSIONS } from "root/src/assets/permissions";
 import {
   generatePaginationQuery,
   generatePaginationMeta,
-} from "../utils/query";
+} from "root/src/utils/query";
 import { comparePassword, getFrontendUrl } from "../utils/function";
 import { generateResetToken } from "../utils/token";
 import crypto from "crypto";
@@ -166,7 +166,7 @@ export const loginAdmin = catchAsync(async (req: Request, res: Response) => {
     "success",
     codes.success,
     res,
-    `Login Successful, Welcome, ${admin.fullName}`
+    `Login Successful, Welcome, ${admin.firstName}`
   );
 });
 
@@ -294,8 +294,8 @@ export const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
   const users = await prisma.admin.findMany({
     select: {
       id: true,
-      fullName: true,
-      username: true,
+      firstName: true,
+      lastName: true,
       email: true,
       phoneNumber: true,
       isEnabled: true,
@@ -328,8 +328,8 @@ export const getAdminById = catchAsync(async (req: Request, res: Response) => {
     where: { id },
     select: {
       id: true,
-      fullName: true,
-      username: true,
+      firstName: true,
+      lastName: true,
       email: true,
       phoneNumber: true,
       isEnabled: true,

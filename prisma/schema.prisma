@@ -20,6 +20,7 @@ model Asset {
   locationId     String
   notes          String?
   purchaseType   purchaseStatus @default(NEW)
+  isDeleted     Boolean        @default(false)
 
   location    Location?       @relation(fields: [locationId], references: [id])
   assignments AssetAssigned[]
@@ -57,8 +58,9 @@ model Admin {
   phoneNumber          String?
   status               String    @default("Active")
   roleId               String?
+  password             String
   passwordResetToken   String?
-  passwordResetExpires DateTime?
+  passwordResetExpiresAt DateTime?
   isEnabled            Boolean   @default(true)
 
   role            Role?           @relation(fields: [roleId], references: [id])
@@ -150,6 +152,8 @@ model AssetLog {
 
   asset Asset  @relation(fields: [assetId], references: [id])
   admin Admin? @relation(fields: [adminId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AuditLog {
@@ -209,5 +213,7 @@ enum AssetEventType {
   RepairStarted
   RepairCompleted
   Disposed
+  Updated
+  Deleted
 }
 

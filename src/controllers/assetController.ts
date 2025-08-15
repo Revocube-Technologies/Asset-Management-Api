@@ -1,12 +1,15 @@
-import { Asset, Admin, purchaseStatus } from "@prisma/client";
+import { purchaseStatus } from "@prisma/client";
 import { AppError } from "root/src/utils/error";
-import config from "root/src/config/env";
 import prisma from "root/prisma";
 import { Request, Response } from "express";
 import uploadImageToCloudinary from "root/src/service/imageUploadService";
 import { generateSerialNumber } from "root/src/utils/function";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
+import {
+  generatePaginationQuery,
+  generatePaginationMeta,
+} from "root/src/utils/query";
 
 export const createAsset = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
@@ -51,7 +54,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       image: imageUrl,
       purchaseDate: new Date(purchaseDate),
       warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : null,
-      status: "available",
+      status: "Available",
       locationId,
       notes,
       purchaseType: purchaseType || purchaseStatus.NEW,
@@ -74,41 +77,178 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const getAllItems = async (req: Request, res: Response) => {
-  const userId = req.user.id;
+interface GetAllAssetsQuery {
+  page?: string;
+  perPage?: string;
+  status?: string;
+  type?: string;
+  locationId?: string;
+}
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) throw new AppError(403, "Unauthorized");
+export const getAllAssets = catchAsync(
+  async (req: Request<{}, {}, {}, GetAllAssetsQuery>, res: Response) => {
+    const { page = "1", perPage = "10", status, type, locationId } = req.query;
 
-  const items = await prisma.item.findMany();
-  res.status(200).json({ status: "success", items });
-};
+    const numericPage = Math.max(parseInt(page, 10), 1);
+    const numericPerPage = Math.max(parseInt(perPage, 10), 1);
 
-export const updateItemQuantity = async (req: Request, res: Response) => {
-  const userId = req.user.id;
+    const where: {
+      status?: string;
+      type?: string;
+      locationId?: string;
+      isDeleted: boolean;
+    } = { isDeleted: false };
+
+    if (status) where.status = status;
+    if (type) where.type = type;
+    if (locationId) where.locationId = locationId;
+
+    const totalAssets = await prisma.asset.count({ where });
+
+    const assets = await prisma.asset.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      ...generatePaginationQuery({
+        page: numericPage,
+        perPage: numericPerPage,
+      }),
+      include: {
+        location: true,
+      },
+    });
+
+    const pagination = generatePaginationMeta({
+      page: numericPage,
+      perPage: numericPerPage,
+      count: totalAssets,
+    });
+
+    res.status(codes.success).json({
+      status: "success",
+      ...pagination,
+      results: assets.length,
+      assets,
+    });
+  }
+);
+
+export const getAssetById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { quantity } = req.body;
 
-  const user = await User.findUnique({ where: { id: userId } });
-  if (!user) throw new AppError(403, "Unauthorized");
-
-  const item = await prisma.item.findUnique({ where: { id } });
-  if (!item) throw new AppError(404, "Item not found");
-
-  const updatedItem = await Item.update({
-    where: { id },
-    data: { quantity },
-  });
-
-  await prisma.log.create({
-    data: {
-      action: "UPDATE",
-      details: `Updated quantity of item: ${item.name}`,
-      itemId: id,
-      storeId: item.storeId,
-      quantity,
+  const asset = await prisma.asset.findUnique({
+    where: { id, isDeleted: false },
+    include: {
+      location: true,
+      assignments: true,
+      repairs: true,
+      RequestLog: true,
     },
   });
 
-  res.status(200).json({ status: "success", updatedItem });
-};
+  if (!asset) {
+    throw new AppError(codes.notFound, "Asset not found");
+  }
+
+  res.status(codes.success).json({
+    status: "success",
+    asset,
+  });
+});
+
+export const updateAsset = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const adminId = req.admin?.id;
+  const updateData = req.body;
+
+  const asset = await prisma.asset.update({
+    where: { id, isDeleted: false },
+    data: updateData,
+  });
+
+  await prisma.assetLog.create({
+    data: {
+      assetId: asset.id,
+      adminId,
+      eventType: "Updated",
+      description: `Asset updated: ${asset.name}`,
+    },
+  });
+
+  res.status(codes.success).json({
+    status: "success",
+    message: "Asset updated successfully",
+    asset,
+  });
+});
+
+export const changeAssetStatus = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    const adminId = req.admin?.id;
+
+    const validStatuses = ["available", "assigned", "under_repair", "disposed"];
+    if (!validStatuses.includes(status)) {
+      throw new AppError(codes.badRequest, "Invalid asset status");
+    }
+
+    const asset = await prisma.asset.update({
+      where: { id, isDeleted: false },
+      data: { status },
+    });
+
+    await prisma.assetLog.create({
+      data: {
+        assetId: asset.id,
+        adminId,
+        eventType: "Updated",
+        description: `Status changed to ${status}`,
+      },
+    });
+
+    res.status(codes.success).json({
+      status: "success",
+      message: "Asset status updated successfully",
+      asset,
+    });
+  }
+);
+
+export const deleteAsset = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const adminId = req.admin?.id;
+
+  const asset = await prisma.asset.update({
+    where: { id, isDeleted: false },
+    data: { isDeleted: true },
+  });
+
+  await prisma.assetLog.create({
+    data: {
+      assetId: asset.id,
+      adminId,
+      eventType: "Deleted",
+      description: `Asset deleted: ${asset.name}`,
+    },
+  });
+
+  res.status(codes.success).json({
+    status: "success",
+    message: "Asset deleted successfully",
+  });
+});
+
+export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const logs = await prisma.assetLog.findMany({
+    where: { assetId: id },
+    orderBy: { createdAt: "desc" },
+  });
+
+  res.status(codes.success).json({
+    status: "success",
+    results: logs.length,
+    logs,
+  });
+});
