@@ -67,18 +67,19 @@ export const getAllDepartments = catchAsync(async (req: Request, res: Response) 
     }),
   });
 
-  const pagination = generatePaginationMeta{(
+  const pagination = generatePaginationMeta({
     page,
     perPage,
-    count: totalDepartments
+    count: totalDepartments,
   });
 
   res.status(codes.success).json({
     status: "success",
     ...pagination,
     results: departments.length,
+    departments,
   });
-
+});
 
 export const updateDepartment = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as unknown as TGetDepartmentType;
