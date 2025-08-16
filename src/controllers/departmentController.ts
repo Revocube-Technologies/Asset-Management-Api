@@ -1,9 +1,12 @@
-import { AppError } from "root/src/utils/error";
 import prisma from "root/prisma";
 import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import { TCreateDepartmentType, TGetAllDepartmentType, TGetDepartmentType, TUpdateDepartmentType } from "../validation/departmentValidator";
+import {
+  generatePaginationQuery,
+  generatePaginationMeta,
+} from "root/src/utils/query";
 
 export const createDepartment = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
@@ -58,22 +61,24 @@ export const getAllDepartments = catchAsync(async (req: Request, res: Response) 
       updatedAt: true,
     },
     orderBy: { createdAt: "desc" },
-    ...(page && perPage && { take: perPage, skip: (page - 1) * perPage }),
+    ...generatePaginationQuery({ 
+      page,
+      perPage 
+    }),
   });
 
-  const pagination = {
+  const pagination = generatePaginationMeta{(
     page,
     perPage,
-    count: totalDepartments,
-  };
+    count: totalDepartments
+  });
 
   res.status(codes.success).json({
     status: "success",
     ...pagination,
     results: departments.length,
-    departments,
   });
-});
+
 
 export const updateDepartment = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as unknown as TGetDepartmentType;

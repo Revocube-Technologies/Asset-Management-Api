@@ -50,3 +50,5 @@ export type TGetAllAssetsType = Yup.InferType<typeof getAllAssetsValidator>
 export type TGetAssetByIdType = Yup.InferType<typeof getAssetByIdValidator>
 export type TUpdateAssetType = Yup.InferType<typeof updateAssetValidator>
 export type TChangeAssetStatusType = Yup.InferType<typeof changeAssetStatusValidator> 
+
+
