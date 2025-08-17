@@ -8,7 +8,7 @@ import {
   TAdminLoginType,
   TGetAdminByIdType,
   TAdminUpdatePasswordType,
-} from "root/src/validation/adminValidator";
+} from "root/src/validation/authValidator";
 import prisma from "root/prisma";
 import { Admin } from "@prisma/client";
 import bcrypt from "bcrypt";
@@ -18,7 +18,7 @@ import { AppError } from "root/src/utils/error";
 import jwt from "jsonwebtoken";
 import codes from "root/src/utils/statusCode";
 import config from "root/src/config/env";
-// import { COMPULSORY_PERMISSIONS } from "root/src/assets/permissions";
+import { COMPULSORY_PERMISSIONS } from "root/src/assets/permissions";
 import {
   generatePaginationQuery,
   generatePaginationMeta,
@@ -81,25 +81,35 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     password: unhashedPassword,
     roleId,
     permissions: requestPermissions = [],
-  } = req.body as unknown as TCreateAdminType;
+  } = req.body as TCreateAdminType; 
 
   const role = await prisma.role.findUnique({
     where: { id: roleId },
   });
 
+  if (!role) {
+    throw new AppError(codes.notFound, "Role not found");
+  }
+
+
   const password = await bcrypt.hash(unhashedPassword, 12);
+
+
   const code = OTP.generate(5, {
     upperCaseAlphabets: true,
     specialChars: false,
     lowerCaseAlphabets: false,
   });
 
+
   const permissionSet = new Set([
-    ...(role.permissions as string[]),
+    ...role.permissions, 
     ...requestPermissions,
     ...COMPULSORY_PERMISSIONS,
   ]);
+
   const permissions = Array.from(permissionSet);
+
 
   const admin = await prisma.admin.create({
     data: {
@@ -114,12 +124,14 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
-  // TODO: Add email sending logic here
-
   res.status(codes.created).json({
+    status: "success",
     message: "Admin Account Successfully Created",
+    data: { id: admin.id, email: admin.email, role: role.name },
   });
 });
+
+
 
 export const updateAdmin = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -367,3 +379,18 @@ export const suspendAdmin = catchAsync(
     });
   }
 );
+
+export const adminLogout = catchAsync(async (req: Request, res: Response) => {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict" as const,
+  };
+
+  res.clearCookie("jwt", cookieOptions);
+
+  res.status(codes.success).json({
+    status: "success",
+    message: "logged out successfully",
+  });
+});

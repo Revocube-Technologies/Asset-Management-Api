@@ -137,6 +137,13 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
     purchaseType,
   } = req.body as unknown as TUpdateAssetType;
 
+  const imageFile = req.file;
+
+    let imageUrl = "";
+  if (imageFile) {
+    imageUrl = await uploadImageToCloudinary(imageFile);
+  }
+
   const asset = await prisma.asset.update({
     where: { id, isDeleted: false },
     data: {

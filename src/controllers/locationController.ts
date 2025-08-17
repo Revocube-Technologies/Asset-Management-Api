@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import { TCreateLocationType } from "root/src/validation/locationValidator";
+import { TCreateLocationType, TUpdateLocationValidator } from "root/src/validation/locationValidator";
 
 export const createLocation = catchAsync(
   async (req: Request, res: Response) => {
@@ -38,8 +38,8 @@ export const createLocation = catchAsync(
 export const updateLocation = catchAsync( async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
 
-  const {id } = req.params
-  const {name, address } = req.body 
+  const {id } = req.params as unknown as TUpdateLocationValidator;
+  const {name, address } = req.body as unknown as TUpdateLocationValidator;
 
   const location = await prisma.location.update({
     where: { id },
@@ -75,7 +75,7 @@ export const getLocation = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const deleteDepartment = catchAsync( async(req: Request, res: Response) => {
+export const deleteLocation = catchAsync( async(req: Request, res: Response) => {
   const { id } = req.params;
 
   await prisma.location.delete({

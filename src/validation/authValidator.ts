@@ -32,15 +32,15 @@ export const resetPasswordValidator = Yup.object().shape({
   confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match").required(),
 });
 
-export const getAllAdminsSchema = Yup.object().shape({}).concat(paginationValidation);
+export const getAllAdminsValidator = Yup.object().shape({}).concat(paginationValidation);
 
-export const getAdminByIdSchema = Yup.object().shape({
+export const getAdminByIdValidator = Yup.object().shape({
    id: Yup.string().uuid().required("ID is required").uuid("Invalid ID format"),
 });
 
 export const updateAdminValidator = createAdminValidator.omit(["password", "email"])
 
-export const adminUpdatePasswordSchema = Yup.object().shape({
+export const adminUpdatePasswordValidator = Yup.object().shape({
    oldPassword: Yup.string().min(8).max(13).required("Old password is required"),
    newPassword: Yup.string().min(8).max(13).required("New password is required"),
 });
@@ -51,6 +51,6 @@ export type TUpdateAdminType = Yup.InferType<typeof updateAdminValidator>
 export type TAdminLoginType = Yup.InferType<typeof adminLoginValidator>
 export type TForgotPasswordType = Yup.InferType<typeof forgotPasswordValidator>
 export type TResetPasswordType = Yup.InferType<typeof resetPasswordValidator>
-export type TGetAllAdminsType = Yup.InferType<typeof getAllAdminsSchema>; 
-export type TGetAdminByIdType = Yup.InferType<typeof getAdminByIdSchema>;
-export type TAdminUpdatePasswordType = Yup.InferType<typeof adminUpdatePasswordSchema>;
+export type TGetAllAdminsType = Yup.InferType<typeof getAllAdminsValidator>; 
+export type TGetAdminByIdType = Yup.InferType<typeof getAdminByIdValidator>;
+export type TAdminUpdatePasswordType = Yup.InferType<typeof adminUpdatePasswordValidator>;
