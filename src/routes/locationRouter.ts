@@ -22,14 +22,14 @@ locationRouter.post(
 );
 
 locationRouter.patch(
-  "/update-location",
+  "/update-location/:id",
   protectRoute,
   validateRequestParameters(updateLocationValidator, "body"),
   updateLocation
 );
 
-locationRouter.get("/get-location", protectRoute, getLocation);
+locationRouter.get("/get-location/:id", protectRoute, getLocation);
 
-locationRouter.delete("/delete-location", protectRoute, deleteLocation);
+locationRouter.delete("/delete-location/:id", protectRoute, deleteLocation);
 
 export default locationRouter;

@@ -7,7 +7,6 @@ export const createLocationValidator = yup.object().shape({
 });
 
 export const updateLocationValidator = yup.object().shape({
-  id: yup.string().required(),
   name: yup.string().required(),
   address: yup.string().required(),
 })

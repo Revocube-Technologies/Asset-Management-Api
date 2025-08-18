@@ -32,7 +32,7 @@ export const updateAssetValidator = Yup.object().shape({
   purchaseDate: Yup.date(),
   warrantyExpiry: Yup.date(),
   locationId: Yup.string(),
-  notes: Yup.string(),
+  notes: Yup.string().nullable(),
   purchaseType: Yup.string().oneOf(Object.values(purchaseStatus)),
 });
 

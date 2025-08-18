@@ -24,7 +24,10 @@ export const createLocation = catchAsync(
     }
 
     const location = await prisma.location.create({
-      data: { name, address },
+      data: { name, 
+        address,
+       createdBy: adminId 
+      },
     });
 
     res.status(codes.success).json({
@@ -36,14 +39,17 @@ export const createLocation = catchAsync(
 );
 
 export const updateLocation = catchAsync( async (req: Request, res: Response) => {
-  const adminId = req.admin?.id;
+  const adminId = req.admin.id;
 
-  const {id } = req.params as unknown as TUpdateLocationValidator;
+  const {id } = req.params;
   const {name, address } = req.body as unknown as TUpdateLocationValidator;
 
   const location = await prisma.location.update({
     where: { id },
-    data: { name, address },
+    data: { name, 
+      address,
+      createdBy: adminId
+     },
   });
 
   res.status(codes.success).json({
@@ -57,6 +63,8 @@ export const updateLocation = catchAsync( async (req: Request, res: Response) =>
 export const getLocation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
 
+
+
   const location = await prisma.location.findUnique({
     where: { id },
     select: {
@@ -68,12 +76,18 @@ export const getLocation = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
+  if (!location) {
+    throw new AppError(codes.notFound, "Location not found");
+  }
+
   res.status(codes.success).json({
     status: "success",
     message: "Location retrieved successfully",
     data: location,
   });
 });
+
+//TODO : add getAll Locations
 
 export const deleteLocation = catchAsync( async(req: Request, res: Response) => {
   const { id } = req.params;

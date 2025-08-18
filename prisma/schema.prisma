@@ -88,6 +88,7 @@ model Location {
   id      String  @id @default(uuid())
   name    String  @unique
   address String?
+  createdBy String
 
   assets    Asset[]
   createdAt DateTime @default(now())
