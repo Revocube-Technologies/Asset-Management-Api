@@ -19,7 +19,11 @@ export const getRepairsValidator = Yup.object().shape({
   status: Yup.string().nullable(),
 })
 
+export const getRepairByIdValidator = Yup.object().shape({
+  id: Yup.string().uuid().required("Repair ID is required").uuid("Invalid Repair ID format"),
+})
 
 export type TLogRepairType = Yup.InferType<typeof logRepairValidator>;
 export type TCompleteRepairType = Yup.InferType<typeof completeRepairValidator>;
 export type TGetRepairsType = Yup.InferType<typeof getRepairsValidator>;
+export type TGetRepairByIdType = Yup.InferType<typeof getRepairByIdValidator>;

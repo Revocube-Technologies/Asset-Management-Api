@@ -27,9 +27,7 @@ export const forgotPasswordValidator = Yup.object().shape({
 });
 
 export const resetPasswordValidator = Yup.object().shape({
-  token: Yup.string().required(),
   password: Yup.string().required(),
-  confirmPassword: Yup.string().oneOf([Yup.ref("password")], "Passwords must match").required(),
 });
 
 export const getAllAdminsValidator = Yup.object().shape({}).concat(paginationValidation);
@@ -41,8 +39,8 @@ export const getAdminByIdValidator = Yup.object().shape({
 export const updateAdminValidator = createAdminValidator.omit(["password", "email"])
 
 export const adminUpdatePasswordValidator = Yup.object().shape({
-   oldPassword: Yup.string().min(8).max(13).required("Old password is required"),
-   newPassword: Yup.string().min(8).max(13).required("New password is required"),
+   oldPassword: Yup.string().min(8).max(15).required("Old password is required"),
+   newPassword: Yup.string().min(8).max(15).required("New password is required"),
 });
 
 

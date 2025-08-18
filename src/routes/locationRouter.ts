@@ -9,11 +9,8 @@ import { protectRoute } from "root/src/middlewares/authMiddleware";
 import validateRequestParameters from "root/src/validation";
 import {
   createLocationValidator,
-  getDepartmentValidator,
-  getAllLocationValidator,
-  updatelocationValidator,
+  updateLocationValidator,
 } from "root/src/validation/locationValidator";
-import validateRequestParameters from "root/src/validation";
 
 const locationRouter = Router();
 
@@ -27,10 +24,12 @@ locationRouter.post(
 locationRouter.patch(
   "/update-location",
   protectRoute,
-  validateRequestParameters(updatelocationValidator, "body"),
+  validateRequestParameters(updateLocationValidator, "body"),
   updateLocation
 );
 
 locationRouter.get("/get-location", protectRoute, getLocation);
 
 locationRouter.delete("/delete-location", protectRoute, deleteLocation);
+
+export default locationRouter;

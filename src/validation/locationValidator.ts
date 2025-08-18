@@ -1,12 +1,12 @@
-import yup from "yup";
+import * as yup from "yup";
 
 
-const createLocationValidator = yup.object().shape({
+export const createLocationValidator = yup.object().shape({
   name: yup.string().required(),
   address: yup.string().required(),
 });
 
-const updateLocationValidator = yup.object().shape({
+export const updateLocationValidator = yup.object().shape({
   id: yup.string().required(),
   name: yup.string().required(),
   address: yup.string().required(),

@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import { TCompleteRepairType, TGetRepairsType, TLogRepairType } from "../validation/repairValidator";
+import { TCompleteRepairType, TGetRepairByIdType, TGetRepairsType, TLogRepairType } from "../validation/repairValidator";
 import { generatePaginationQuery, generatePaginationMeta } from "root/src/utils/query";
 
 export const logRepair = catchAsync(async (req: Request, res: Response) => {
@@ -106,4 +106,47 @@ export const getRepairs = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+export const getRepairById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params as unknown as TGetRepairByIdType;
+
+  const repair = await prisma.repairLog.findUnique({
+    where: { id },
+    include: {
+      asset: {
+        select: {
+          id: true,
+          name: true,
+          serialNumber: true,
+          status: true,
+        },
+      },
+      admin: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+        },
+      },
+      requestLog: {
+        select: {
+          id: true,
+          description: true,
+          requestStatus: true,
+          employeeName: true,
+          department: { select: { id: true, name: true } },
+        },
+      },
+    },
+  });
+
+  if (!repair) {
+    throw new AppError(codes.notFound, "Repair log not found");
+  }
+
+  res.status(codes.success).json({
+    status: "success",
+    data: repair,
+  });
+});
 

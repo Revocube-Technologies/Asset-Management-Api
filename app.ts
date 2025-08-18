@@ -10,6 +10,8 @@ import config from "root/src/config/env";
 import { AppError } from "./src/utils/error";
 dotenv.config();
 
+import adminRouter from "root/src/routes/index";
+
 const app = express();
 
 app.use(express.json());
@@ -34,6 +36,7 @@ app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
 });
 
 //API routes
+app.use("/api/v1/admin", adminRouter);
 
 app.use((_req: Request, res: Response, _next: NextFunction) => {
   res.status(404).send("Route not found");
