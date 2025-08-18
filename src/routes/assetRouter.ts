@@ -7,6 +7,7 @@ import {
   changeAssetStatus,
   deleteAsset,
   getAssetLogs,
+  getAllAssetsLogs,
 } from "root/src/controllers/assetController";
 import { protectRoute } from "root/src/middlewares/authMiddleware";
 import validateRequestParameters from "root/src/validation";
@@ -68,8 +69,14 @@ assetRouter.delete(
 assetRouter.get(
   "/asset-logs/:id",
   protectRoute,
-  validateRequestParameters(getAssetByIdValidator, "body"),
+  validateRequestParameters(getAssetByIdValidator, "params"),
   getAssetLogs
+);
+
+assetRouter.get(
+  "/get-all-logs",
+  protectRoute, 
+  getAllAssetsLogs
 );
 
 export default assetRouter;

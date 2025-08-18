@@ -77,6 +77,7 @@ model Admin {
 model Department {
   id   String @id @default(uuid())
   name String @unique
+  createdBy String
 
   assignments AssetAssigned[]
   createdAt   DateTime        @default(now())

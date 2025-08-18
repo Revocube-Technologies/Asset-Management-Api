@@ -7,6 +7,7 @@ import {
   generatePaginationQuery,
   generatePaginationMeta,
 } from "root/src/utils/query";
+import { AppError } from "../utils/error";
 
 export const createDepartment = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
@@ -15,9 +16,18 @@ export const createDepartment = catchAsync(async (req: Request, res: Response) =
     name
   } = req.body as unknown as TCreateDepartmentType;
 
+  const existingDepartment = await prisma.department.findUnique({
+    where: { name },
+  })
+
+  if (existingDepartment) {
+    throw new AppError(codes.conflict, "Department already exists");
+  }
+
   const department = await prisma.department.create({
     data: {
-      name
+      name,
+      createdBy: adminId,
     },
   });
 
@@ -91,7 +101,8 @@ export const updateDepartment = catchAsync(async (req: Request, res: Response) =
   const department = await prisma.department.update({
     where: { id },
     data: {
-      name
+      name,
+      createdBy: adminId,
     },
   });
 
@@ -107,7 +118,9 @@ export const deleteDepartment = catchAsync(async (req: Request, res: Response) =
   const adminId = req.admin?.id;
 
   const department = await prisma.department.delete({
-    where: { id },
+    where: { id, 
+      createdBy: adminId,
+    },
   });
 
   res.status(codes.success).json({

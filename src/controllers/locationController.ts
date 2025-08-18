@@ -11,10 +11,6 @@ export const createLocation = catchAsync(
 
     const { name, address } = req.body as unknown as TCreateLocationType;
 
-    if (!name) {
-      throw new AppError(codes.badRequest, "Location name is required");
-    }
-
     const existingLocation = await prisma.location.findUnique({
       where: { name },
     });

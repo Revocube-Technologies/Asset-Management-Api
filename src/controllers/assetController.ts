@@ -39,7 +39,10 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   if (imageFile) {
     imageUrl = await uploadImageToCloudinary(imageFile);
   }
-
+const location = await prisma.location.findUnique({
+    where: { id: locationId },
+    select: { id: true, name: true },
+  });
   const asset = await prisma.asset.create({
     data: {
       name,
@@ -68,7 +71,13 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.success).json({
     status: "success",
     message: `Asset created successfully: ${name} (${serialNumber})`,
-    data: asset,
+    data: {
+      asset,
+      location: {
+        id: location.id,
+        name: location?.name,
+      }
+    },
   });
 });
 
@@ -242,6 +251,7 @@ export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//TODO: check
 export const getAllAssetsLogs = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status, type, locationId } =
     req.query as unknown as TGetAllAssetsType;
