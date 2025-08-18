@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import { TCreateRequestType } from "../validation/requestValidator";
+import { TCreateRequestType, TGetAllRequestsType, TUpdateRequestStatusType } from "../validation/requestValidator";
 import { generatePaginationQuery, generatePaginationMeta, generateRangeQuery } from "root/src/utils/query";
 
 export const createRequest = catchAsync(async (req: Request, res: Response) => {
@@ -11,9 +11,6 @@ export const createRequest = catchAsync(async (req: Request, res: Response) => {
   const { assetId, employeeName, departmentId, description } =
     req.body as unknown as TCreateRequestType;
 
-  if (!assetId || !employeeName || !departmentId || !description) {
-    throw new AppError(codes.badRequest, "All fields are required");
-  }
 
   const asset = await prisma.asset.findUnique({ where: { id: assetId } });
   if (!asset) {
@@ -47,16 +44,6 @@ export const createRequest = catchAsync(async (req: Request, res: Response) => {
     data: { status: "RequestRepair" },
   });
 
-  // await prisma.auditLog.create({
-  //   data: {
-  //     adminId,
-  //     action: "REQUEST_CREATE",
-  //     entity: "RequestLog",
-  //     entityId: request.id,
-  //     details: `Repair request created for asset ${asset.name} by ${employeeName}`,
-  //   },
-  // });
-
   res.status(codes.success).json({
     status: "success",
     message: "Request created successfully",
@@ -68,13 +55,7 @@ export const createRequest = catchAsync(async (req: Request, res: Response) => {
 export const updateRequestStatus = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
   const { id } = req.params;
-  const { status, remarks } = req.body as unknown as ;
-
-
-  if (!status || !["Approved", "Declined"].includes(status)) {
-    throw new AppError(codes.badRequest, "Invalid status. Must be Approved or Declined.");
-  }
-
+  const { status } = req.body as unknown as TUpdateRequestStatusType;
 
   const request = await prisma.requestLog.findUnique({
     where: { id },
@@ -108,26 +89,13 @@ export const updateRequestStatus = catchAsync(async (req: Request, res: Response
     await prisma.repairLog.create({
       data: {
         assetId: request.assetId,
-        requestId: request.id,
+        requestLogId: request.id,
         adminId,
-        description: remarks || "Repair approved",
         repairDate: new Date(),
         repairStatus: "InProgress",
       },
     });
   }
-
-
-  // await prisma.auditLog.create({
-  //   data: {
-  //     adminId,
-  //     action: "REQUEST_UPDATE",
-  //     entity: "RequestLog",
-  //     entityId: request.id,
-  //     details: `Request ${id} updated to ${status}`,
-  //   },
-  // });
-
 
   res.status(codes.success).json({
     status: "success",
@@ -137,31 +105,18 @@ export const updateRequestStatus = catchAsync(async (req: Request, res: Response
 });
 
 
-
-
 export const getAllRequests = catchAsync(async (req: Request, res: Response) => {
   const {
-    page = "1",
-    perPage = "15",
+    page,
+    perPage,
     status,
     departmentId,
     assetId,
     minDate,
     maxDate,
-  } = req.query as {
-    page?: string;
-    perPage?: string;
-    status?: "Pending" | "Approved" | "Declined";
-    departmentId?: string;
-    assetId?: string;
-    minDate?: string;
-    maxDate?: string;
-  };
+  } = req.query as unknown as TGetAllRequestsType;
 
-  const pageNum = parseInt(page, 10) || 1;
-  const perPageNum = parseInt(perPage, 10) || 15;
 
-  // Build filters
   const filters: any = {};
   if (status) filters.requestStatus = status;
   if (departmentId) filters.departmentId = departmentId;
@@ -175,10 +130,9 @@ export const getAllRequests = catchAsync(async (req: Request, res: Response) => 
     }).requestDate;
   }
 
-  // Count total
+
   const totalRequests = await prisma.requestLog.count({ where: filters });
 
-  // Query with pagination
   const requests = await prisma.requestLog.findMany({
     where: filters,
     include: {
@@ -187,17 +141,15 @@ export const getAllRequests = catchAsync(async (req: Request, res: Response) => 
       admin: { select: { id: true, firstName: true, lastName: true, email: true } },
     },
     orderBy: { createdAt: "desc" },
-    ...generatePaginationQuery({ page: pageNum, perPage: perPageNum }),
+    ...generatePaginationQuery({ page, perPage }),
   });
 
-  // Pagination meta
   const pagination = generatePaginationMeta({
-    page: pageNum,
-    perPage: perPageNum,
+    page,
+    perPage,
     count: totalRequests,
   });
 
-  // Response
   res.status(codes.success).json({
     status: "success",
     ...pagination,

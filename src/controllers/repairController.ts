@@ -3,11 +3,13 @@ import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import { AppError } from "root/src/utils/error";
+import { TCompleteRepairType, TGetRepairsType, TLogRepairType } from "../validation/repairValidator";
+import { generatePaginationQuery, generatePaginationMeta } from "root/src/utils/query";
 
 export const logRepair = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
   const { id: assetId } = req.params;
-  const { description, repairCost, repairedBy, requestLogId } = req.body;
+  const { description, repairCost, repairedBy, requestLogId } = req.body as unknown as TLogRepairType;
 
   const asset = await prisma.asset.findUnique({ where: { id: assetId } });
   if (!asset) throw new AppError(codes.notFound, "Asset not found");
@@ -39,7 +41,7 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
 export const completeRepair = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
   const { id } = req.params;
-  const { remarks } = req.body;
+  const { remarks } = req.body as unknown as TCompleteRepairType;
 
   const repair = await prisma.repairLog.findUnique({ where: { id } });
   if (!repair) throw new AppError(codes.notFound, "Repair not found");
@@ -57,7 +59,6 @@ export const completeRepair = catchAsync(async (req: Request, res: Response) => 
     },
   });
 
-  // Set asset back to "Available"
   await prisma.asset.update({
     where: { id: repair.assetId },
     data: { status: "Available" },
@@ -71,14 +72,9 @@ export const completeRepair = catchAsync(async (req: Request, res: Response) => 
 });
 
 export const getRepairs = catchAsync(async (req: Request, res: Response) => {
-  const { page = "1", perPage = "15", status } = req.query as {
-    page?: string;
-    perPage?: string;
-    status?: "Pending" | "InProgress" | "Completed";
-  };
+  const { page, perPage, status } = req.query as unknown as TGetRepairsType;
 
-  const pageNum = parseInt(page, 10) || 1;
-  const perPageNum = parseInt(perPage, 10) || 15;
+
 
   const filters: any = {};
   if (status) filters.repairStatus = status;
@@ -93,12 +89,12 @@ export const getRepairs = catchAsync(async (req: Request, res: Response) => {
       requestLog: { select: { id: true, description: true, requestStatus: true } },
     },
     orderBy: { createdAt: "desc" },
-    ...generatePaginationQuery({ page: pageNum, perPage: perPageNum }),
+    ...generatePaginationQuery({ page, perPage }),
   });
 
   const pagination = generatePaginationMeta({
-    page: pageNum,
-    perPage: perPageNum,
+    page,
+    perPage,
     count: totalRepairs,
   });
 
