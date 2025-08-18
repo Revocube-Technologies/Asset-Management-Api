@@ -25,24 +25,18 @@ export const getAssetByIdValidator = Yup.object().shape({
 });
 
 export const updateAssetValidator = Yup.object().shape({
-  id: Yup.string().uuid().required("ID is required").uuid("Invalid ID format"),
   name: Yup.string(),
   type: Yup.string(),
   price: Yup.number(),
   purchaseDate: Yup.date(),
-  warrantyExpiry: Yup.date(),
+  warrantyExpiry: Yup.date().nullable(),
   locationId: Yup.string(),
   notes: Yup.string().nullable(),
   purchaseType: Yup.string().oneOf(Object.values(purchaseStatus)),
 });
 
 export const changeAssetStatusValidator = Yup.object().shape({
-  id: Yup.string().uuid().required("ID is required").uuid("Invalid ID format"),
   status: Yup.string().oneOf(Object.values(AssetStatus)).required("Asset status is required"),
-});
-
-export const deleteAssetValidator = Yup.object().shape({
-  id: Yup.string().uuid().required("ID is required").uuid("Invalid ID format"),
 });
 
 export type TCreateAssetType = Yup.InferType<typeof createAssetValidator>

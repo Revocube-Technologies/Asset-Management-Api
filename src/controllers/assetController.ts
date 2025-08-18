@@ -47,12 +47,12 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       serialNumber,
       price,
       image: imageUrl,
-      purchaseDate: new Date(purchaseDate),
+      purchaseDate: new Date(purchaseDate).toISOString(),
       warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : null,
       status: "Available",
       locationId,
       notes,
-      purchaseType: purchaseType,
+      purchaseType,
     },
   });
 
@@ -72,6 +72,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//TODO: work on the get all 
 export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status, type, locationId } =
     req.query as unknown as TGetAllAssetsType;
@@ -124,7 +125,7 @@ export const getAssetById = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const updateAsset = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params as unknown as TUpdateAssetType;
+  const { id } = req.params;
   const adminId = req.admin?.id;
   const {
     name,
@@ -139,7 +140,7 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
 
   const imageFile = req.file;
 
-    let imageUrl = "";
+  let imageUrl = "";
   if (imageFile) {
     imageUrl = await uploadImageToCloudinary(imageFile);
   }
@@ -238,5 +239,34 @@ export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
     status: "success",
     results: logs.length,
     logs,
+  });
+});
+
+export const getAllAssetsLogs = catchAsync(async (req: Request, res: Response) => {
+  const { page, perPage, status, type, locationId } =
+    req.query as unknown as TGetAllAssetsType;
+
+  const totalAssets = await prisma.asset.findMany({
+    where: {
+      isDeleted: false,
+    },
+    orderBy: { createdAt: "desc" },
+    ...generatePaginationQuery({
+      page,
+      perPage,
+    }),
+  });
+
+  const pagination = generatePaginationMeta({
+    page,
+    perPage,
+    count: totalAssets.length,
+  });
+
+  res.status(codes.success).json({
+    status: "success",
+    ...pagination,
+    results: totalAssets.length,
+    data: totalAssets,
   });
 });

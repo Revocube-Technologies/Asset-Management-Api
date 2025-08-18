@@ -17,11 +17,22 @@ import {
   updateAssetValidator,
   changeAssetStatusValidator,
 } from "root/src/validation/assetValidator";
+import { upload } from "root/src/config/uploadFiles";
 
 const assetRouter = Router();
 
+assetRouter.patch(
+  "/change-status/:id",
+  protectRoute,
+  validateRequestParameters(changeAssetStatusValidator, "body" ),
+
+  changeAssetStatus
+);
+
 assetRouter.post(
   "/create",
+  protectRoute,
+  upload.single("imageFile"),
   validateRequestParameters(createAssetValidator, "body"),
   createAsset
 );
@@ -34,28 +45,23 @@ assetRouter.get(
 
 assetRouter.get(
   "/asset/:id",
-  validateRequestParameters(getAssetByIdValidator, "body"),
+  validateRequestParameters(getAssetByIdValidator, "params"),
   getAssetById
 );
 
 assetRouter.patch(
-  "/update-asset",
+  "/update-asset/:id",
   protectRoute,
+  upload.single("imageFile"),
   validateRequestParameters(updateAssetValidator, "body"),
   updateAsset
 );
 
-assetRouter.patch(
-  "/change-status",
-  protectRoute,
-  validateRequestParameters(changeAssetStatusValidator, "body"),
-  changeAssetStatus
-);
+
 
 assetRouter.delete(
   "/delete-asset/:id",
   protectRoute,
-  validateRequestParameters(getAssetByIdValidator, "body"),
   deleteAsset
 );
 
