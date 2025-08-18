@@ -81,7 +81,7 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     password: unhashedPassword,
     roleId,
     permissions: requestPermissions = [],
-  } = req.body as TCreateAdminType; 
+  } = req.body as unknown as TCreateAdminType; 
 
   const role = await prisma.role.findUnique({
     where: { id: roleId },

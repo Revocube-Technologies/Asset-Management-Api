@@ -179,6 +179,7 @@ enum AssetStatus {
   Assigned
   UnderRepair
   Retired
+  RequestRepair
 }
 
 enum AdminRole {
