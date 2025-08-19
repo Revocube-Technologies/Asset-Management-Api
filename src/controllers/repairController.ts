@@ -71,6 +71,7 @@ export const completeRepair = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
+//TODO: Get all
 export const getRepairs = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status } = req.query as unknown as TGetRepairsType;
 

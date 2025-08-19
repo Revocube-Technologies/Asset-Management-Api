@@ -6,6 +6,7 @@ import assignmentRouter from "./assignmentRouter";
 import departmentRouter from "./departmentRouter";
 import locationRouter from "./locationRouter";
 import  requestRouter from "./requestRouter";
+import repairRouter from "./repairRouter";
 
 const adminRouter = express.Router();
 
@@ -16,5 +17,7 @@ adminRouter.use("/assign", assignmentRouter);
 adminRouter.use("/department", departmentRouter);
 adminRouter.use("/location", locationRouter);
 adminRouter.use("/requests", requestRouter);
+adminRouter.use("/repairs", repairRouter);
+
 
 export default adminRouter;

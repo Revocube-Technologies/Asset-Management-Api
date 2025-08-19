@@ -105,6 +105,7 @@ export const updateRequestStatus = catchAsync(async (req: Request, res: Response
 });
 
 
+//TODO  fix getAll
 export const getAllRequests = catchAsync(async (req: Request, res: Response) => {
   const {
     page,

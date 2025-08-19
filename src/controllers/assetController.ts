@@ -68,7 +68,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
-  res.status(codes.success).json({
+  res.status(codes.created).json({
     status: "success",
     message: `Asset created successfully: ${name} (${serialNumber})`,
     data: {

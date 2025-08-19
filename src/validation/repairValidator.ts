@@ -1,7 +1,6 @@
 import * as Yup from 'yup';
 
 export const logRepairValidator = Yup.object().shape({
-  assetId: Yup.string().uuid().required("Asset ID is required").uuid("Invalid Asset ID format"),
   description: Yup.string().required("Description is required"),
   repairCost: Yup.number().required("Repair cost is required"),
   repairedBy: Yup.string().required("Repaired by is required"),
@@ -9,7 +8,6 @@ export const logRepairValidator = Yup.object().shape({
 })
 
 export const completeRepairValidator = Yup.object().shape({
-  id: Yup.string().uuid().required("Repair ID is required").uuid("Invalid Repair ID format"),
   remarks: Yup.string().nullable(),
 })
 

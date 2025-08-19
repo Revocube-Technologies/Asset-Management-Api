@@ -31,7 +31,7 @@ requestRouter.patch(
 );
 
 requestRouter.get(
-  "/requests",
+  "/all-requests",
   protectRoute,
   validateRequestParameters(getAllRequestsValidator, "query"),
   getAllRequests
