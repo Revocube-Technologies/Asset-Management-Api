@@ -20,8 +20,6 @@ export const getAllAssignmentsValidator = Yup.object().shape({
   perPage: Yup.number().required("Items per page is required"),
 })
 
-
-
 export type TCreateAssignmentType = Yup.InferType<typeof createAssignmentValidator>;
 export type TReturnAssetType = Yup.InferType<typeof returnAssetValidator>;
 export type TGetAllAssignmentsType = Yup.InferType<typeof getAllAssignmentsValidator>;

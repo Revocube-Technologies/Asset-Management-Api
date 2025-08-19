@@ -26,7 +26,7 @@ export const createRole = catchAsync(async (req: Request, res: Response) => {
     data: { name, permissions },
   });
 
-  res.status(codes.success).json({
+  res.status(codes.created).json({
     status: "success",
     message: "Role created successfully",
     data: role,

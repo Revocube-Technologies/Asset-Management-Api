@@ -63,7 +63,7 @@ export const createAssignment = catchAsync(
       data: { status: "Assigned" },
     });
 
-    res.status(codes.success).json({
+    res.status(codes.created).json({
       status: "success",
       message: "Assignment created successfully",
       data: assignment,
@@ -114,6 +114,7 @@ export const returnAsset = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+//TODO Fix getall
 export const getAllAssignments = catchAsync(
   async (req: Request, res: Response) => {
     const { page, perPage } = req.query as unknown as TGetAllAssignmentsType;

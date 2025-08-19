@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import { TCreateRequestType, TGetAllRequestsType, TUpdateRequestStatusType } from "../validation/requestValidator";
+import { TCreateRequestType, TGetAllRequestsType, TGetRequestByIdType, TUpdateRequestStatusType } from "../validation/requestValidator";
 import { generatePaginationQuery, generatePaginationMeta, generateRangeQuery } from "root/src/utils/query";
 
 export const createRequest = catchAsync(async (req: Request, res: Response) => {
@@ -44,7 +44,7 @@ export const createRequest = catchAsync(async (req: Request, res: Response) => {
     data: { status: "RequestRepair" },
   });
 
-  res.status(codes.success).json({
+  res.status(codes.created).json({
     status: "success",
     message: "Request created successfully",
     data: request,
@@ -155,5 +155,27 @@ export const getAllRequests = catchAsync(async (req: Request, res: Response) => 
     ...pagination,
     results: requests.length,
     data: requests,
+  });
+});
+
+export const getRequestById = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params as unknown as TGetRequestByIdType;
+
+  const request = await prisma.requestLog.findUnique({
+    where: { id },
+    include: {
+      asset: { select: { id: true, name: true, serialNumber: true, status: true } },
+      department: { select: { id: true, name: true } },
+      admin: { select: { id: true, firstName: true, lastName: true, email: true } },
+    },
+  });
+
+  if (!request) {
+    throw new AppError(codes.notFound, "Request not found");
+  }
+
+  res.status(codes.success).json({
+    status: "success",
+    data: request,
   });
 });

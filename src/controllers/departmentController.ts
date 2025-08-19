@@ -35,7 +35,7 @@ export const createDepartment = catchAsync(
       },
     });
 
-    res.status(codes.success).json({
+    res.status(codes.created).json({
       status: "success",
       message: "Department created successfully",
       data: department,

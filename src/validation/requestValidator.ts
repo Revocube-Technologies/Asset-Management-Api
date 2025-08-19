@@ -23,8 +23,13 @@ export const getAllRequestsValidator = Yup.object().shape({
   maxDate: Yup.string().nullable(),
 })
 
+export const getRequestByIdValidator = Yup.object().shape({
+  id: Yup.string().uuid().required("ID is required").uuid("Invalid ID format"),
+});
+
 
 
 export type TCreateRequestType = Yup.InferType<typeof createRequestValidator>;
 export type TUpdateRequestStatusType = Yup.InferType<typeof updateRequestStatusValidator>;
 export type TGetAllRequestsType = Yup.InferType<typeof getAllRequestsValidator>;
+export type TGetRequestByIdType = Yup.InferType<typeof getRequestByIdValidator>;

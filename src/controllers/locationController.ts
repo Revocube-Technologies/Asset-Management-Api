@@ -26,7 +26,7 @@ export const createLocation = catchAsync(
       },
     });
 
-    res.status(codes.success).json({
+    res.status(codes.created).json({
       status: "success",
       message: "Location created successfully",
       data: location,
