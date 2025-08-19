@@ -3,7 +3,8 @@ import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import { TCreateLocationType, TUpdateLocationValidator } from "root/src/validation/locationValidator";
+import { TCreateLocationType, TUpdateLocationValidator, TGetAllLocationsType } from "root/src/validation/locationValidator";
+import { generatePaginationMeta, generatePaginationQuery } from "../utils/query";
 
 export const createLocation = catchAsync(
   async (req: Request, res: Response) => {
@@ -83,7 +84,41 @@ export const getLocation = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-//TODO : add getAll Locations
+export const getAllLocations = catchAsync(async (req: Request, res: Response) => {
+  const { page, perPage } = req.validatedQuery as TGetAllLocationsType;
+
+  console.log("Validated req.validatedQuery:", req.validatedQuery); 
+
+  const totalLocations = await prisma.location.count();
+
+  const locations = await prisma.location.findMany({
+    select: {
+      id: true,
+      name: true,
+      address: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+    ...generatePaginationQuery({
+      page: Number(page) || 1,
+      perPage: Number(perPage) || 15,
+    }),
+  });
+
+  const pagination = generatePaginationMeta({
+    page: Number(page) || 1,
+    perPage: Number(perPage) || 15,
+    count: totalLocations,
+  });
+
+  res.status(codes.success).json({
+    status: "success",
+    ...pagination,
+    results: locations.length,
+    data: locations,
+  });
+});
 
 export const deleteLocation = catchAsync( async(req: Request, res: Response) => {
   const { id } = req.params;

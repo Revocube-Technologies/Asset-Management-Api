@@ -17,6 +17,7 @@ import {
   getAssetByIdValidator,
   updateAssetValidator,
   changeAssetStatusValidator,
+  getAllAssetsLogsValidator,
 } from "root/src/validation/assetValidator";
 import { upload } from "root/src/config/uploadFiles";
 
@@ -25,8 +26,7 @@ const assetRouter = Router();
 assetRouter.patch(
   "/change-status/:id",
   protectRoute,
-  validateRequestParameters(changeAssetStatusValidator, "body" ),
-
+  validateRequestParameters(changeAssetStatusValidator, "body"),
   changeAssetStatus
 );
 
@@ -39,8 +39,8 @@ assetRouter.post(
 );
 
 assetRouter.get(
-  "/assets",
-  validateRequestParameters(getAllAssetsValidator, "body"),
+  "/all-assets",
+  validateRequestParameters(getAllAssetsValidator, "query"),
   getAllAssets
 );
 
@@ -58,13 +58,7 @@ assetRouter.patch(
   updateAsset
 );
 
-
-
-assetRouter.delete(
-  "/delete-asset/:id",
-  protectRoute,
-  deleteAsset
-);
+assetRouter.delete("/delete-asset/:id", protectRoute, deleteAsset);
 
 assetRouter.get(
   "/asset-logs/:id",
@@ -73,10 +67,6 @@ assetRouter.get(
   getAssetLogs
 );
 
-assetRouter.get(
-  "/get-all-logs",
-  protectRoute, 
-  getAllAssetsLogs
-);
+assetRouter.get("/get-all-logs", protectRoute, validateRequestParameters(getAllAssetsLogsValidator, "params"), getAllAssetsLogs);
 
 export default assetRouter;

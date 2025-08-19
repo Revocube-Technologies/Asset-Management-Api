@@ -12,10 +12,13 @@ import {
 import {
   TChangeAssetStatusType,
   TCreateAssetType,
+  TGetAllAssetsLogsType,
   TGetAllAssetsType,
   TGetAssetByIdType,
   TUpdateAssetType,
 } from "../validation/assetValidator";
+import { AssetStatus, Prisma } from "@prisma/client";
+import { TGetAllAssetsTypes } from "root/src/utils/types";
 
 export const createAsset = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
@@ -81,25 +84,27 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-//TODO: work on the get all
 export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status, type, locationId } =
-    req.query as unknown as TGetAllAssetsType;
+    req.validatedQuery as TGetAllAssetsTypes;
 
   const totalAssets = await prisma.asset.findMany({
     where: {
       isDeleted: false,
+      ...(status && { status }),
+      ...(type && { type }),
+      ...(locationId && { locationId }),
     },
     orderBy: { createdAt: "desc" },
     ...generatePaginationQuery({
-      page,
-      perPage,
+      page: Number(page),
+      perPage: Number(perPage),
     }),
   });
 
   const pagination = generatePaginationMeta({
-    page,
-    perPage,
+    page: Number(page),
+    perPage: Number(perPage),
     count: totalAssets.length,
   });
 
@@ -251,34 +256,65 @@ export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-//TODO: check
+type TGetAllAssetsLogsType = {
+  page?: number;
+  perPage?: number;
+  status?: AssetStatus;
+  type?: string;
+  locationId?: string;
+};
+
 export const getAllAssetsLogs = catchAsync(
   async (req: Request, res: Response) => {
     const { page, perPage, status, type, locationId } =
-      req.query as unknown as TGetAllAssetsType;
+      req.validatedQuery as TGetAllAssetsLogsType;
 
-    const totalAssets = await prisma.asset.findMany({
-      where: {
+    const where: Prisma.AssetLogWhereInput = {
+      asset: {
         isDeleted: false,
+        ...(status && { status: { equals: status } }),
+        ...(type && { type: { equals: type } }),
+        ...(locationId && { locationId: { equals: locationId } }),
+      },
+    };
+
+    const totalLogs = await prisma.assetLog.count({ where });
+
+    const logs = await prisma.assetLog.findMany({
+      where,
+      include: {
+        asset: {
+          select: {
+            id: true,
+            name: true,
+            serialNumber: true,
+            status: true,
+            type: true,
+            locationId: true,
+          },
+        },
+        admin: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
       },
       orderBy: { createdAt: "desc" },
       ...generatePaginationQuery({
-        page,
-        perPage,
+        page: Number(page),
+        perPage: Number(perPage),
       }),
     });
 
     const pagination = generatePaginationMeta({
-      page,
-      perPage,
-      count: totalAssets.length,
+      page: Number(page),
+      perPage: Number(perPage),
+      count: totalLogs,
     });
 
     res.status(codes.success).json({
       status: "success",
       ...pagination,
-      results: totalAssets.length,
-      data: totalAssets,
+      results: logs.length,
+      data: logs,
     });
   }
 );

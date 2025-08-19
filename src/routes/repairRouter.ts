@@ -31,7 +31,7 @@ repairRouter.patch(
 );
 
 repairRouter.get(
-  "/repairs",
+  "/all-repairs",
   protectRoute,
   validateRequestParameters(getRepairsValidator, "query"),
   getRepairs

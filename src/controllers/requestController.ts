@@ -5,6 +5,7 @@ import catchAsync from "../utils/catchAsync";
 import { AppError } from "root/src/utils/error";
 import { TCreateRequestType, TGetAllRequestsType, TGetRequestByIdType, TUpdateRequestStatusType } from "../validation/requestValidator";
 import { generatePaginationQuery, generatePaginationMeta, generateRangeQuery } from "root/src/utils/query";
+import { Prisma } from "@prisma/client";
 
 export const createRequest = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
@@ -104,8 +105,6 @@ export const updateRequestStatus = catchAsync(async (req: Request, res: Response
   });
 });
 
-
-//TODO  fix getAll
 export const getAllRequests = catchAsync(async (req: Request, res: Response) => {
   const {
     page,
@@ -115,39 +114,42 @@ export const getAllRequests = catchAsync(async (req: Request, res: Response) => 
     assetId,
     minDate,
     maxDate,
-  } = req.query as unknown as TGetAllRequestsType;
+  } = req.validatedQuery as TGetAllRequestsType;
 
 
-  const filters: any = {};
-  if (status) filters.requestStatus = status;
-  if (departmentId) filters.departmentId = departmentId;
-  if (assetId) filters.assetId = assetId;
+  const where: Prisma.RequestLogWhereInput = {
+    ...(status && { requestStatus: { equals: status } }),
+    ...(departmentId && { departmentId: { equals: departmentId } }),
+    ...(assetId && { assetId: { equals: assetId } }),
+    ...(minDate || maxDate
+      ? {
+          requestDate: {
+            ...(minDate && { gte: new Date(minDate) }),
+            ...(maxDate && { lte: new Date(maxDate) }),
+          },
+        }
+      : {}),
+  };
 
-  if (minDate || maxDate) {
-    filters.requestDate = generateRangeQuery({
-      min: minDate ? new Date(minDate) : undefined,
-      max: maxDate ? new Date(maxDate) : undefined,
-      field: "requestDate",
-    }).requestDate;
-  }
-
-
-  const totalRequests = await prisma.requestLog.count({ where: filters });
+  const totalRequests = await prisma.requestLog.count({ where });
 
   const requests = await prisma.requestLog.findMany({
-    where: filters,
+    where,
     include: {
       asset: { select: { id: true, name: true, serialNumber: true, status: true } },
       department: { select: { id: true, name: true } },
       admin: { select: { id: true, firstName: true, lastName: true, email: true } },
     },
     orderBy: { createdAt: "desc" },
-    ...generatePaginationQuery({ page, perPage }),
+    ...generatePaginationQuery({
+      page: Number(page),
+      perPage: Number(perPage),
+    }),
   });
 
   const pagination = generatePaginationMeta({
-    page,
-    perPage,
+    page: Number(page),
+    perPage: Number(perPage),
     count: totalRequests,
   });
 
