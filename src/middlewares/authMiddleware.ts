@@ -43,4 +43,3 @@ export const protectRoute = catchAsync(async (req: Request, _res: Response, next
   next()
 
 });
-

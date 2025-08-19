@@ -3,41 +3,39 @@ import {
   createAssignment,
   returnAsset,
   getAllAssignments,
-  getAssignmentById
+  getAssignmentById,
 } from "root/src/controllers/assignmentController";
 import { protectRoute } from "root/src/middlewares/authMiddleware";
 import validateRequestParameters from "root/src/validation";
 import {
   createAssignmentValidator,
   getAllAssignmentsValidator,
-  getAssignmentByIdValidator,
+  returnAssetValidator,
 } from "root/src/validation/assignmentValidator";
 
 const assignmentRouter = Router();
 
 assignmentRouter.post(
   "/create",
+  protectRoute,
   validateRequestParameters(createAssignmentValidator, "body"),
   createAssignment
-);
-
-assignmentRouter.get(
-  "/assignments",
-  validateRequestParameters(getAllAssignmentsValidator, "body"),
-  getAllAssignments
-);
-
-assignmentRouter.get(
-  "/assignment/:id",
-  validateRequestParameters(getAssignmentByIdValidator, "body"),
-  getAssignmentById
 );
 
 assignmentRouter.patch(
   "/return-asset",
   protectRoute,
-  validateRequestParameters(getAssignmentByIdValidator, "body"),
+  validateRequestParameters(returnAssetValidator, "body"),
   returnAsset
 );
+
+assignmentRouter.get(
+  "/assignments",
+  protectRoute,
+  validateRequestParameters(getAllAssignmentsValidator, "query"),
+  getAllAssignments
+);
+
+assignmentRouter.get("/assignment/:id", protectRoute, getAssignmentById);
 
 export default assignmentRouter;

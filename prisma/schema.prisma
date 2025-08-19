@@ -36,6 +36,8 @@ model AssetAssigned {
   id                    String    @id @default(uuid())
   assetId               String
   assignedById          String
+  receivedById            String?
+
   assignedDate          DateTime
   employeeName          String
   returnDate            DateTime?
