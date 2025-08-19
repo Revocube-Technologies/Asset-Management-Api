@@ -15,6 +15,7 @@ export const createAssignment = catchAsync(
 
     const {
       assetId,
+      assignedById,
       assignedDate,
       employeeName,
       conditionAtAssignment,

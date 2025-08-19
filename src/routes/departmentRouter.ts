@@ -27,19 +27,18 @@ departmentRouter.post(
 departmentRouter.get(
   "/get-department/:id",
   protectRoute,
-  validateRequestParameters(getDepartmentValidator, "body"),
+  validateRequestParameters(getDepartmentValidator, "params"),
   getDepartment
 );
 
 departmentRouter.get(
   "/get-all-departments",
   protectRoute,
-  validateRequestParameters(getAllDepartmentValidator, "body"),
   getAllDepartments
 );
 
 departmentRouter.patch(
-  "/update-department",
+  "/update-department/:id",
   protectRoute,
   validateRequestParameters(updateDepartmentValidator, "body"),
   updateDepartment
@@ -48,7 +47,6 @@ departmentRouter.patch(
 departmentRouter.delete(
   "/delete-department/:id",
   protectRoute,
-  validateRequestParameters(getDepartmentValidator, "body"),
   deleteDepartment
 );
 

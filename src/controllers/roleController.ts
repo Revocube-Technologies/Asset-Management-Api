@@ -71,7 +71,7 @@ export const deleteRole = catchAsync(
       data: { isDeleted: true },
     });
 
-    res.status(codes.success).json({
+    res.status(codes.noContent).json({
       message: "Role Deleted Successfully.",
     });
   }

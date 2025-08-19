@@ -13,8 +13,19 @@ export const getAllDepartmentValidator = Yup.object().shape({
   perPage: Yup.number().required("Items per page is required"),
 })
 
+
+// export const getAllDepartmentValidator = Yup.object().shape({
+//   page: Yup.number()
+//     .transform((value, originalValue) => Number(originalValue)) 
+//     .required("Page number is required")
+//     .min(1, "Page must be at least 1"),
+//   perPage: Yup.number()
+//     .transform((value, originalValue) => Number(originalValue)) 
+//     .required("Items per page is required")
+//     .min(1, "Items per page must be at least 1"),
+// });
+
 export const updateDepartmentValidator = Yup.object().shape({
-  id: Yup.string().uuid().required("ID is required").uuid("Invalid ID format"),
   name: Yup.string(),
 });
 

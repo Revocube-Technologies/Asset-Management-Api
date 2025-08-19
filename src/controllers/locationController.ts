@@ -92,7 +92,7 @@ export const deleteLocation = catchAsync( async(req: Request, res: Response) => 
     where: { id },
   });
 
-  res.status(codes.success).json({
+  res.status(codes.noContent).json({
     status: "success",
     message: "Location deleted successfully",
   });

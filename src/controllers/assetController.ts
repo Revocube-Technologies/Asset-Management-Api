@@ -39,7 +39,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   if (imageFile) {
     imageUrl = await uploadImageToCloudinary(imageFile);
   }
-const location = await prisma.location.findUnique({
+  const location = await prisma.location.findUnique({
     where: { id: locationId },
     select: { id: true, name: true },
   });
@@ -76,12 +76,12 @@ const location = await prisma.location.findUnique({
       location: {
         id: location.id,
         name: location?.name,
-      }
+      },
     },
   });
 });
 
-//TODO: work on the get all 
+//TODO: work on the get all
 export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status, type, locationId } =
     req.query as unknown as TGetAllAssetsType;
@@ -230,7 +230,7 @@ export const deleteAsset = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
-  res.status(codes.success).json({
+  res.status(codes.noContent).json({
     status: "success",
     message: "Asset deleted successfully",
   });
@@ -252,31 +252,33 @@ export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
 });
 
 //TODO: check
-export const getAllAssetsLogs = catchAsync(async (req: Request, res: Response) => {
-  const { page, perPage, status, type, locationId } =
-    req.query as unknown as TGetAllAssetsType;
+export const getAllAssetsLogs = catchAsync(
+  async (req: Request, res: Response) => {
+    const { page, perPage, status, type, locationId } =
+      req.query as unknown as TGetAllAssetsType;
 
-  const totalAssets = await prisma.asset.findMany({
-    where: {
-      isDeleted: false,
-    },
-    orderBy: { createdAt: "desc" },
-    ...generatePaginationQuery({
+    const totalAssets = await prisma.asset.findMany({
+      where: {
+        isDeleted: false,
+      },
+      orderBy: { createdAt: "desc" },
+      ...generatePaginationQuery({
+        page,
+        perPage,
+      }),
+    });
+
+    const pagination = generatePaginationMeta({
       page,
       perPage,
-    }),
-  });
+      count: totalAssets.length,
+    });
 
-  const pagination = generatePaginationMeta({
-    page,
-    perPage,
-    count: totalAssets.length,
-  });
-
-  res.status(codes.success).json({
-    status: "success",
-    ...pagination,
-    results: totalAssets.length,
-    data: totalAssets,
-  });
-});
+    res.status(codes.success).json({
+      status: "success",
+      ...pagination,
+      results: totalAssets.length,
+      data: totalAssets,
+    });
+  }
+);
