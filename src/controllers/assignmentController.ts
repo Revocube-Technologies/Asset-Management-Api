@@ -115,7 +115,6 @@ export const returnAsset = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
 export const getAllAssignments = catchAsync(
   async (req: Request, res: Response) => {
     const { page, perPage } = req.validatedQuery as TGetAllAssignmentsType;

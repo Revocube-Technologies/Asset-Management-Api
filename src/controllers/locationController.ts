@@ -3,8 +3,15 @@ import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import { TCreateLocationType, TUpdateLocationValidator, TGetAllLocationsType } from "root/src/validation/locationValidator";
-import { generatePaginationMeta, generatePaginationQuery } from "../utils/query";
+import {
+  TCreateLocationType,
+  TUpdateLocationValidator,
+  TGetAllLocationsType,
+} from "root/src/validation/locationValidator";
+import {
+  generatePaginationMeta,
+  generatePaginationQuery,
+} from "../utils/query";
 
 export const createLocation = catchAsync(
   async (req: Request, res: Response) => {
@@ -21,10 +28,7 @@ export const createLocation = catchAsync(
     }
 
     const location = await prisma.location.create({
-      data: { name, 
-        address,
-       createdBy: adminId 
-      },
+      data: { name, address, createdBy: adminId },
     });
 
     res.status(codes.created).json({
@@ -35,27 +39,25 @@ export const createLocation = catchAsync(
   }
 );
 
-export const updateLocation = catchAsync( async (req: Request, res: Response) => {
-  const adminId = req.admin.id;
+export const updateLocation = catchAsync(
+  async (req: Request, res: Response) => {
+    const adminId = req.admin.id;
 
-  const {id } = req.params;
-  const {name, address } = req.body as unknown as TUpdateLocationValidator;
+    const { id } = req.params;
+    const { name, address } = req.body as unknown as TUpdateLocationValidator;
 
-  const location = await prisma.location.update({
-    where: { id },
-    data: { name, 
-      address,
-      createdBy: adminId
-     },
-  });
+    const location = await prisma.location.update({
+      where: { id },
+      data: { name, address, createdBy: adminId },
+    });
 
-  res.status(codes.success).json({
-    status: "success",
-    message: "Location updated successfully",
-    data: location,
-  });
-});
-
+    res.status(codes.success).json({
+      status: "success",
+      message: "Location updated successfully",
+      data: location,
+    });
+  }
+);
 
 export const getLocation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -82,56 +84,53 @@ export const getLocation = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const getAllLocations = catchAsync(async (req: Request, res: Response) => {
-  const { page, perPage } = req.validatedQuery as TGetAllLocationsType;
+export const getAllLocations = catchAsync(
+  async (req: Request, res: Response) => {
+    const { page, perPage } = req.validatedQuery as TGetAllLocationsType;
 
-  const totalLocations = await prisma.location.count();
+    const totalLocations = await prisma.location.count();
 
-  const locations = await prisma.location.findMany({
-    select: {
-      id: true,
-      name: true,
-      address: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-    orderBy: { createdAt: "desc" },
-    ...generatePaginationQuery({
-      page: Number(page),
+    const locations = await prisma.location.findMany({
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+      ...generatePaginationQuery({
+        page: Number(page),
+        perPage: Number(perPage),
+      }),
+    });
+
+    const pagination = generatePaginationMeta({
+      page: Number(page) || 1,
       perPage: Number(perPage),
-    }),
-  });
+      count: totalLocations,
+    });
 
-  const pagination = generatePaginationMeta({
-    page: Number(page) || 1,
-    perPage: Number(perPage),
-    count: totalLocations,
-  });
+    res.status(codes.success).json({
+      status: "success",
+      ...pagination,
+      results: locations.length,
+      data: locations,
+    });
+  }
+);
 
-  res.status(codes.success).json({
-    status: "success",
-    ...pagination,
-    results: locations.length,
-    data: locations,
-  });
-});
+export const deleteLocation = catchAsync(
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
 
-export const deleteLocation = catchAsync( async(req: Request, res: Response) => {
-  const { id } = req.params;
+    await prisma.location.delete({
+      where: { id },
+    });
 
-  await prisma.location.delete({
-    where: { id },
-  });
-
-  res.status(codes.noContent).json({
-    status: "success",
-    message: "Location deleted successfully",
-  });
-})
-
-
-
-
-
-
-
+    res.status(codes.noContent).json({
+      status: "success",
+      message: "Location deleted successfully",
+    });
+  }
+);

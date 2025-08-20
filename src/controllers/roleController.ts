@@ -8,7 +8,9 @@ import {
   COMPULSORY_PERMISSIONS,
 } from "root/src/assets/permissions";
 import {
-  CreateRoleType, UpdateRoleType, } from "root/src/validation/roleValidator";
+  CreateRoleType,
+  UpdateRoleType,
+} from "root/src/validation/roleValidator";
 
 export const createRole = catchAsync(async (req: Request, res: Response) => {
   const { name, permissions: requestPermissions } =

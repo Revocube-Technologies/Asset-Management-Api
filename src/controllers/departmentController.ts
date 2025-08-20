@@ -65,9 +65,7 @@ export const getDepartment = catchAsync(async (req: Request, res: Response) => {
 
 export const getAllDepartments = catchAsync(
   async (req: Request, res: Response) => {
-
     const { page, perPage } = req.validatedQuery as TGetAllDepartmentType;
-
 
     const totalDepartments = await prisma.department.count();
 

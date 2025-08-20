@@ -29,7 +29,7 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
       adminId,
       assetId,
       description,
-      repairCost:  Number(repairCost),
+      repairCost: Number(repairCost),
       repairedBy,
       requestLogId,
       repairStatus: "Pending",
@@ -87,7 +87,7 @@ export const getRepairs = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status } = req.validatedQuery as TGetRepairsType;
 
   const where: Prisma.RepairLogWhereInput = {
-    ...(status && { repairStatus: status }), 
+    ...(status && { repairStatus: status }),
   };
 
   const totalRepairs = await prisma.repairLog.count({ where });

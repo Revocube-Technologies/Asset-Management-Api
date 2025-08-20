@@ -81,7 +81,7 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     password: unhashedPassword,
     roleId,
     permissions: requestPermissions = [],
-  } = req.body as unknown as TCreateAdminType; 
+  } = req.body as unknown as TCreateAdminType;
 
   const role = await prisma.role.findUnique({
     where: { id: roleId },
@@ -91,9 +91,7 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(codes.notFound, "Role not found");
   }
 
-
   const password = await bcrypt.hash(unhashedPassword, 12);
-
 
   const code = OTP.generate(5, {
     upperCaseAlphabets: true,
@@ -101,15 +99,13 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     lowerCaseAlphabets: false,
   });
 
-
   const permissionSet = new Set([
-    ...role.permissions, 
+    ...role.permissions,
     ...requestPermissions,
     ...COMPULSORY_PERMISSIONS,
   ]);
 
   const permissions = Array.from(permissionSet);
-
 
   const admin = await prisma.admin.create({
     data: {
@@ -132,8 +128,6 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     data: { id: admin.id, email: admin.email, role: role.name },
   });
 });
-
-
 
 export const updateAdmin = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
