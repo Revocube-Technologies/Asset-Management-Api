@@ -16,7 +16,7 @@ import {
 import { Prisma, RepairStatus } from "@prisma/client";
 
 export const logRepair = catchAsync(async (req: Request, res: Response) => {
-  const adminId = req.admin?.id;
+  const adminId = req.admin.id;
   const { id: assetId } = req.params;
   const { description, repairCost, repairedBy, requestLogId } =
     req.body as unknown as TLogRepairType;
@@ -50,7 +50,7 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
 
 export const completeRepair = catchAsync(
   async (req: Request, res: Response) => {
-    const adminId = req.admin?.id;
+    const adminId = req.admin.id;
     const { id } = req.params;
     const { remarks } = req.body as unknown as TCompleteRepairType;
 

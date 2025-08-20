@@ -33,7 +33,8 @@ departmentRouter.get(
 
 departmentRouter.get(
   "/get-all-departments",
-  protectRoute, validateRequestParameters(getAllDepartmentsValidator, "query"),
+  protectRoute,
+  validateRequestParameters(getAllDepartmentsValidator, "query"),
   getAllDepartments
 );
 

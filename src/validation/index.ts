@@ -2,7 +2,6 @@ import * as Yup from "yup";
 import { NextFunction, Request, Response } from "express";
 import codes from "root/src/utils/statusCode";
 
-
 declare module "express" {
   interface Request {
     validatedQuery?: any;
@@ -20,7 +19,6 @@ const validateRequestParameters =
     try {
       let resource = req[reqParameter];
 
-
       if (reqParameter === "query") {
         resource = Object.fromEntries(
           Object.entries(resource).map(([key, value]) => [
@@ -31,13 +29,14 @@ const validateRequestParameters =
       }
 
       const schema =
-        typeof resourceSchema === "function" ? resourceSchema(req) : resourceSchema;
+        typeof resourceSchema === "function"
+          ? resourceSchema(req)
+          : resourceSchema;
 
       const parsedResource = await schema.validate(resource, {
         stripUnknown: true,
         abortEarly: false,
       });
-
 
       if (reqParameter === "query") {
         req.validatedQuery = parsedResource;

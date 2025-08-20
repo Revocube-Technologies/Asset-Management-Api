@@ -39,6 +39,7 @@ const config = {
    jwtSecret: envVars.JWT_SECRET,
    jwtTokenExpires: envVars.JWT_TOKEN_EXPIRES,
    jwtCookieExpires: envVars.JWT_COOKIE_EXPIRES,
+   frontendUrl: envVars.FRONTEND_URL,
 
 
    cloudName: envVars.CLOUD_NAME,

@@ -43,7 +43,11 @@ authRouter.post(
   adminForgotPassword
 );
 
-authRouter.patch("/reset-password/:token", validateRequestParameters(resetPasswordValidator, "body"), adminResetPassword);
+authRouter.patch(
+  "/reset-password/:token",
+  validateRequestParameters(resetPasswordValidator, "body"),
+  adminResetPassword
+);
 
 authRouter.patch(
   "/update-password/:id",
@@ -52,16 +56,9 @@ authRouter.patch(
   adminUpdatePassword
 );
 
-authRouter.patch(
-  "/update/:id",
-  protectRoute, updateAdmin
-);
+authRouter.patch("/update/:id", protectRoute, updateAdmin);
 
-authRouter.post(
-  "/suspend/:id",
-  protectRoute,
-  suspendAdmin
-);
+authRouter.post("/suspend/:id", protectRoute, suspendAdmin);
 
 authRouter.get("/get-all-admins", protectRoute, getAllAdmins);
 

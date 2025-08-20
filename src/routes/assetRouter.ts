@@ -67,6 +67,11 @@ assetRouter.get(
   getAssetLogs
 );
 
-assetRouter.get("/get-all-logs", protectRoute, validateRequestParameters(getAllAssetsLogsValidator, "params"), getAllAssetsLogs);
+assetRouter.get(
+  "/get-all-logs",
+  protectRoute,
+  validateRequestParameters(getAllAssetsLogsValidator, "params"),
+  getAllAssetsLogs
+);
 
 export default assetRouter;

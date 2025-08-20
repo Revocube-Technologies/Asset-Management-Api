@@ -11,7 +11,6 @@ import {
   createAssignmentValidator,
   getAllAssignmentsValidator,
   returnAssetValidator,
-
 } from "root/src/validation/assignmentValidator";
 
 const assignmentRouter = Router();
@@ -33,7 +32,7 @@ assignmentRouter.patch(
 assignmentRouter.get(
   "/all-assignments",
   protectRoute,
-   validateRequestParameters(getAllAssignmentsValidator, "query"),
+  validateRequestParameters(getAllAssignmentsValidator, "query"),
   getAllAssignments
 );
 

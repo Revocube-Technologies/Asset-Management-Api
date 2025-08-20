@@ -217,7 +217,7 @@ export const changeAssetStatus = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
     const { status } = req.body as unknown as TChangeAssetStatusType;
-    const adminId = req.admin?.id;
+    const adminId = req.admin.id;
 
     const asset = await prisma.asset.update({
       where: { id, isDeleted: false },

@@ -15,7 +15,7 @@ import {
 
 export const createLocation = catchAsync(
   async (req: Request, res: Response) => {
-    const adminId = req.admin?.id;
+    const adminId = req.admin.id;
 
     const { name, address } = req.body as unknown as TCreateLocationType;
 

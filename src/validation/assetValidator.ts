@@ -14,7 +14,6 @@ export const createAssetValidator = Yup.object().shape({
     .required("Asset purchase type is required"),
 });
 
-
 export const getAllAssetsValidator = Yup.object().shape({
   page: Yup.number().positive("Page number must be positive").default(1),
   perPage: Yup.number().positive("Items per page must be positive").default(15),
@@ -51,7 +50,7 @@ export const getAllAssetsLogsValidator = Yup.object().shape({
   perPage: Yup.number().positive("Items per page must be positive").default(15),
   status: Yup.mixed<AssetStatus>()
     .optional()
-    .oneOf(Object.values(AssetStatus), "Invalid asset status"), 
+    .oneOf(Object.values(AssetStatus), "Invalid asset status"),
   type: Yup.string().optional().nullable(),
   locationId: Yup.string().optional().nullable(),
 });
@@ -63,4 +62,6 @@ export type TUpdateAssetType = Yup.InferType<typeof updateAssetValidator>;
 export type TChangeAssetStatusType = Yup.InferType<
   typeof changeAssetStatusValidator
 >;
-export type TGetAllAssetsLogsType = Yup.InferType<typeof getAllAssetsLogsValidator>;
+export type TGetAllAssetsLogsType = Yup.InferType<
+  typeof getAllAssetsLogsValidator
+>;

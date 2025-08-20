@@ -16,30 +16,31 @@ declare global {
   }
 }
 
-export const protectRoute = catchAsync(async (req: Request, _res: Response, next: NextFunction) => {
-  let token: string;
+export const protectRoute = catchAsync(
+  async (req: Request, _res: Response, next: NextFunction) => {
+    let token: string;
 
-  if (config.nodeEnv === "development") {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer")) {
-      throw new AppError(codes.unAuthorized, "You are not logged in!");
+    if (config.nodeEnv === "development") {
+      const authHeader = req.headers.authorization;
+      if (!authHeader?.startsWith("Bearer")) {
+        throw new AppError(codes.unAuthorized, "You are not logged in!");
+      }
+      token = authHeader.split(" ")[1];
+    } else {
+      token = req.cookies.jwt;
+      if (!token) {
+        throw new AppError(codes.unAuthorized, "You are not logged in!");
+      }
     }
-    token = authHeader.split(" ")[1];
-  } else {
-    token = req.cookies.jwt;
-    if (!token) {
-      throw new AppError(codes.unAuthorized, "You are not logged in!");
-    }
+
+    const { id } = jwt.verify(token, config.jwtSecret) as { id: string };
+
+    const admin = await prisma.admin.findUniqueOrThrow({
+      where: { id },
+    });
+
+    req.admin = admin;
+
+    next();
   }
-
-  const { id } = jwt.verify(token, config.jwtSecret) as { id: string };
-
-  const admin = await prisma.admin.findUniqueOrThrow({
-    where: { id },
-  });
-
-  req.admin = admin;
-
-  next()
-
-});
+);

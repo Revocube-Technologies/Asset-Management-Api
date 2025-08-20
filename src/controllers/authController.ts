@@ -23,8 +23,9 @@ import {
   generatePaginationQuery,
   generatePaginationMeta,
 } from "root/src/utils/query";
-import { comparePassword, getFrontendUrl } from "../utils/function";
-import { generateResetToken } from "../utils/token";
+import { getFrontendUrl } from "root/src/utils/function";
+import { comparePassword } from "root/src/utils/function";
+import { generateResetToken } from "root/src/utils/token";
 import crypto from "crypto";
 
 const generateUserToken = (user: Admin) => {
@@ -198,9 +199,7 @@ export const adminForgotPassword = catchAsync(
       },
     });
 
-    const passwordResetUrl = getFrontendUrl(
-      `/api/v1/admin/auth/reset-password/:${resetToken}}`
-    );
+    const passwordResetUrl = getFrontendUrl(`/api/v1/admin/auth/reset-password/:${resetToken}}`);
 
     //TODO: add email sendAdminResetPassword
 

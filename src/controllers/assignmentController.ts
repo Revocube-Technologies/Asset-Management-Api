@@ -15,7 +15,7 @@ import {
 
 export const createAssignment = catchAsync(
   async (req: Request, res: Response) => {
-    const adminId = req.admin?.id;
+    const adminId = req.admin.id;
 
     const {
       assetId,
@@ -72,7 +72,7 @@ export const createAssignment = catchAsync(
 );
 
 export const returnAsset = catchAsync(async (req: Request, res: Response) => {
-  const adminId = req.admin?.id;
+  const adminId = req.admin.id;
 
   const { assignmentId, conditionAtReturn } =
     req.body as unknown as TReturnAssetType;
@@ -178,7 +178,7 @@ export const getAllAssignments = catchAsync(
 
 export const getAssignmentById = catchAsync(
   async (req: Request, res: Response) => {
-    const adminId = req.admin?.id;
+    const adminId = req.admin.id;
     const { id } = req.params;
 
     const assignment = await prisma.assetAssigned.findUnique({

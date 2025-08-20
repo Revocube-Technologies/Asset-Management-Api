@@ -17,7 +17,7 @@ import {
 import { Prisma } from "@prisma/client";
 
 export const createRequest = catchAsync(async (req: Request, res: Response) => {
-  const adminId = req.admin?.id;
+  const adminId = req.admin.id;
   const { assetId, employeeName, departmentId, description } =
     req.body as unknown as TCreateRequestType;
 
@@ -62,7 +62,7 @@ export const createRequest = catchAsync(async (req: Request, res: Response) => {
 
 export const updateRequestStatus = catchAsync(
   async (req: Request, res: Response) => {
-    const adminId = req.admin?.id;
+    const adminId = req.admin.id;
     const { id } = req.params;
     const { status } = req.body as unknown as TUpdateRequestStatusType;
 

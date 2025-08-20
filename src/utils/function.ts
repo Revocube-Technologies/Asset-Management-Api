@@ -34,9 +34,8 @@ export const getFrontendUrl = (
   return url.toString();
 };
 
-
 export const generateSerialNumber = async (): Promise<string> => {
-  const companyPrefix = "REV"; 
+  const companyPrefix = "REV";
   const yearPart = new Date().getFullYear().toString();
 
   const randomSegment = (length: number): string => {
@@ -53,4 +52,3 @@ export const generateSerialNumber = async (): Promise<string> => {
 
   return serialNumber;
 };
-
