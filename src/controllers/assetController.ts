@@ -57,7 +57,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       serialNumber,
       price: Number(price),
       image: imageUrl,
-      purchaseDate: new Date(purchaseDate).toISOString(),
+      purchaseDate: new Date(purchaseDate),
       warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : null,
       status: "Available",
       locationId,
