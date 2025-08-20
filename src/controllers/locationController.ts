@@ -87,8 +87,6 @@ export const getLocation = catchAsync(async (req: Request, res: Response) => {
 export const getAllLocations = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage } = req.validatedQuery as TGetAllLocationsType;
 
-  console.log("Validated req.validatedQuery:", req.validatedQuery); 
-
   const totalLocations = await prisma.location.count();
 
   const locations = await prisma.location.findMany({
@@ -101,14 +99,14 @@ export const getAllLocations = catchAsync(async (req: Request, res: Response) =>
     },
     orderBy: { createdAt: "desc" },
     ...generatePaginationQuery({
-      page: Number(page) || 1,
-      perPage: Number(perPage) || 15,
+      page: Number(page),
+      perPage: Number(perPage),
     }),
   });
 
   const pagination = generatePaginationMeta({
     page: Number(page) || 1,
-    perPage: Number(perPage) || 15,
+    perPage: Number(perPage),
     count: totalLocations,
   });
 

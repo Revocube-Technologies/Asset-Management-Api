@@ -63,10 +63,12 @@ export const getDepartment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-//TODO: fix get all
 export const getAllDepartments = catchAsync(
   async (req: Request, res: Response) => {
-    const { page, perPage } = req.query as unknown as TGetAllDepartmentType;
+
+    const { page, perPage } = req.validatedQuery as TGetAllDepartmentType;
+
+    console.log("Validated req.validatedQuery:", req.validatedQuery);
 
     const totalDepartments = await prisma.department.count();
 
@@ -78,16 +80,15 @@ export const getAllDepartments = catchAsync(
         updatedAt: true,
       },
       orderBy: { createdAt: "desc" },
-
       ...generatePaginationQuery({
-        page,
-        perPage,
+        page: Number(page),
+        perPage: Number(perPage),
       }),
     });
 
     const pagination = generatePaginationMeta({
-      page,
-      perPage,
+      page: Number(page),
+      perPage: Number(perPage),
       count: totalDepartments,
     });
 
@@ -95,7 +96,7 @@ export const getAllDepartments = catchAsync(
       status: "success",
       ...pagination,
       results: departments.length,
-      departments,
+      data: departments,
     });
   }
 );

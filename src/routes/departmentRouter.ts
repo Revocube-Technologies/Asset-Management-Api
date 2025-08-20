@@ -11,8 +11,8 @@ import validateRequestParameters from "root/src/validation";
 import {
   createDepartmentValidator,
   getDepartmentValidator,
-  getAllDepartmentValidator,
   updateDepartmentValidator,
+  getAllDepartmentsValidator,
 } from "root/src/validation/departmentValidator";
 
 const departmentRouter = Router();
@@ -33,7 +33,7 @@ departmentRouter.get(
 
 departmentRouter.get(
   "/get-all-departments",
-  protectRoute,
+  protectRoute, validateRequestParameters(getAllDepartmentsValidator, "query"),
   getAllDepartments
 );
 

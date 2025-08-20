@@ -74,7 +74,8 @@ export const createAssignment = catchAsync(
 export const returnAsset = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin?.id;
 
-  const { assignmentId, conditionAtReturn } = req.body as unknown as TReturnAssetType;
+  const { assignmentId, conditionAtReturn } =
+    req.body as unknown as TReturnAssetType;
 
   if (!assignmentId) {
     throw new AppError(codes.badRequest, "Assignment ID is required");
@@ -114,10 +115,10 @@ export const returnAsset = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-//TODO Fix getall
+
 export const getAllAssignments = catchAsync(
   async (req: Request, res: Response) => {
-    const { page, perPage } = req.query as unknown as TGetAllAssignmentsType;
+    const { page, perPage } = req.validatedQuery as TGetAllAssignmentsType;
 
     const totalAssignments = await prisma.assetAssigned.count();
 
@@ -156,14 +157,14 @@ export const getAllAssignments = catchAsync(
       },
       orderBy: { createdAt: "desc" },
       ...generatePaginationQuery({
-        page,
-        perPage,
+        page: Number(page),
+        perPage: Number(perPage),
       }),
     });
 
     const pagination = generatePaginationMeta({
-      page,
-      perPage,
+      page: Number(page),
+      perPage: Number(perPage),
       count: totalAssignments,
     });
 
@@ -171,7 +172,7 @@ export const getAllAssignments = catchAsync(
       status: "success",
       ...pagination,
       results: assignments.length,
-      assignments,
+      data: assignments,
     });
   }
 );

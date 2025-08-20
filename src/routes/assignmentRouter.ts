@@ -31,7 +31,7 @@ assignmentRouter.patch(
 );
 
 assignmentRouter.get(
-  "/assignments",
+  "/all-assignments",
   protectRoute,
    validateRequestParameters(getAllAssignmentsValidator, "query"),
   getAllAssignments

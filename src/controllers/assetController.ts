@@ -266,8 +266,9 @@ type TGetAllAssetsLogsType = {
 
 export const getAllAssetsLogs = catchAsync(
   async (req: Request, res: Response) => {
+    const validatedQuery = req.validatedQuery ?? { page: 1, perPage: 15 };
     const { page, perPage, status, type, locationId } =
-      req.validatedQuery as TGetAllAssetsLogsType;
+      validatedQuery as TGetAllAssetsLogsType;
 
     const where: Prisma.AssetLogWhereInput = {
       asset: {
@@ -291,6 +292,10 @@ export const getAllAssetsLogs = catchAsync(
             status: true,
             type: true,
             locationId: true,
+            purchaseDate: true,
+            warrantyExpiry: true,
+            price: true,
+            purchaseType: true,
           },
         },
         admin: {
@@ -299,14 +304,14 @@ export const getAllAssetsLogs = catchAsync(
       },
       orderBy: { createdAt: "desc" },
       ...generatePaginationQuery({
-        page: Number(page),
-        perPage: Number(perPage),
+        page: Number(page) || 1,
+        perPage: Number(perPage) || 15,
       }),
     });
 
     const pagination = generatePaginationMeta({
-      page: Number(page),
-      perPage: Number(perPage),
+      page: Number(page) || 1,
+      perPage: Number(perPage) || 15,
       count: totalLogs,
     });
 

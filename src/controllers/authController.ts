@@ -124,6 +124,8 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
+  //TODO: send welcome email with login details
+
   res.status(codes.created).json({
     status: "success",
     message: "Admin Account Successfully Created",

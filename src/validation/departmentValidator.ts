@@ -8,10 +8,10 @@ export const getDepartmentValidator = Yup.object().shape({
   id: Yup.string().uuid().required("ID is required").uuid("Invalid ID format"),
 });
 
-export const getAllDepartmentValidator = Yup.object().shape({
-  page: Yup.number().required("Page number is required"),
-  perPage: Yup.number().required("Items per page is required"),
-})
+export const getAllDepartmentsValidator = Yup.object().shape({
+  page: Yup.number().positive("Page number must be positive").default(1),
+  perPage: Yup.number().positive("Items per page must be positive").default(15),
+});
 
 export const updateDepartmentValidator = Yup.object().shape({
   name: Yup.string(),
@@ -20,5 +20,5 @@ export const updateDepartmentValidator = Yup.object().shape({
 
 export type TCreateDepartmentType = Yup.InferType<typeof createDepartmentValidator>
 export type TGetDepartmentType = Yup.InferType<typeof getDepartmentValidator>
-export type TGetAllDepartmentType = Yup.InferType<typeof getAllDepartmentValidator>
+export type TGetAllDepartmentType = Yup.InferType<typeof getAllDepartmentsValidator>
 export type TUpdateDepartmentType = Yup.InferType<typeof updateDepartmentValidator>

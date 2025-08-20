@@ -16,9 +16,11 @@ export const returnAssetValidator = Yup.object().shape({
 })
 
 export const getAllAssignmentsValidator = Yup.object().shape({
-  page: Yup.number().required("Page number is required"),
-  perPage: Yup.number().required("Items per page is required"),
-})
+  page: Yup.number().positive("Page number must be positive").default(1),
+  perPage: Yup.number().positive("Items per page must be positive").default(15),
+});
+
+
 
 export type TCreateAssignmentType = Yup.InferType<typeof createAssignmentValidator>;
 export type TReturnAssetType = Yup.InferType<typeof returnAssetValidator>;
