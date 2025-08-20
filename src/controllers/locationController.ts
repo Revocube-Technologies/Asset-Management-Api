@@ -60,8 +60,6 @@ export const updateLocation = catchAsync( async (req: Request, res: Response) =>
 export const getLocation = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-
-
   const location = await prisma.location.findUnique({
     where: { id },
     select: {

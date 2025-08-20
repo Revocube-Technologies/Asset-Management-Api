@@ -51,7 +51,7 @@ export const createAssignment = catchAsync(
       data: {
         assetId,
         assignedById: adminId!,
-        assignedDate: assignedDate,
+        assignedDate: assignedDate ? new Date(assignedDate) : new Date(),
         employeeName,
         conditionAtAssignment,
         departmentId,

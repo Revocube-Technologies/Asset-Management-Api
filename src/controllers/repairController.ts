@@ -29,7 +29,7 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
       adminId,
       assetId,
       description,
-      repairCost,
+      repairCost:  Number(repairCost),
       repairedBy,
       requestLogId,
       repairStatus: "Pending",

@@ -1,6 +1,5 @@
 import * as Yup from "yup";
 import { purchaseStatus, AssetStatus } from "@prisma/client";
-//import { paginationValidator } from "root/src/validation/index";
 
 export const createAssetValidator = Yup.object().shape({
   name: Yup.string().required("Asset name is required"),
@@ -21,7 +20,7 @@ export const getAllAssetsValidator = Yup.object().shape({
   perPage: Yup.number().positive("Items per page must be positive").default(15),
   status: Yup.string()
     .optional()
-    .oneOf(["Available", "Assigned", "Retired", "UnderRepair", "RequestRepair"], "Invalid asset status"),
+    .oneOf(["Available", "Assigned", "Retired"], "Invalid asset status"),
   type: Yup.string().optional().nullable(),
   locationId: Yup.string().optional().nullable(),
 });
@@ -58,7 +57,7 @@ export const getAllAssetsLogsValidator = Yup.object().shape({
 });
 
 export type TCreateAssetType = Yup.InferType<typeof createAssetValidator>;
-export type TGetAllAssetsType = Yup.InferType<typeof getAllAssetsValidator>;
+export type TGetAllAssetsTypes = Yup.InferType<typeof getAllAssetsValidator>;
 export type TGetAssetByIdType = Yup.InferType<typeof getAssetByIdValidator>;
 export type TUpdateAssetType = Yup.InferType<typeof updateAssetValidator>;
 export type TChangeAssetStatusType = Yup.InferType<

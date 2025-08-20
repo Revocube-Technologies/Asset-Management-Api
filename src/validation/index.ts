@@ -5,7 +5,7 @@ import codes from "root/src/utils/statusCode";
 
 declare module "express" {
   interface Request {
-    validatedQuery?: any; // Replace `any` with specific types if possible
+    validatedQuery?: any;
     validatedBody?: any;
     validatedParams?: any;
   }

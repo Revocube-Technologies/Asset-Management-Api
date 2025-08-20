@@ -13,15 +13,14 @@ import {
   TChangeAssetStatusType,
   TCreateAssetType,
   TGetAllAssetsLogsType,
-  TGetAllAssetsType,
   TGetAssetByIdType,
   TUpdateAssetType,
+  TGetAllAssetsTypes,
 } from "../validation/assetValidator";
 import { AssetStatus, Prisma } from "@prisma/client";
-import { TGetAllAssetsTypes } from "root/src/utils/types";
 
 export const createAsset = catchAsync(async (req: Request, res: Response) => {
-  const adminId = req.admin?.id;
+  const adminId = req.admin.id;
 
   const {
     name,
@@ -35,23 +34,28 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   } = req.body as unknown as TCreateAssetType;
 
   const imageFile = req.file;
-
   const serialNumber = await generateSerialNumber();
 
   let imageUrl = "";
   if (imageFile) {
     imageUrl = await uploadImageToCloudinary(imageFile);
   }
+
   const location = await prisma.location.findUnique({
     where: { id: locationId },
-    select: { id: true, name: true },
+    select: { id: true },
   });
+
+  if (!location) {
+    throw new AppError(codes.notFound, "Location not found");
+  }
+
   const asset = await prisma.asset.create({
     data: {
       name,
       type,
       serialNumber,
-      price,
+      price: Number(price),
       image: imageUrl,
       purchaseDate: new Date(purchaseDate).toISOString(),
       warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : null,
@@ -59,6 +63,11 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       locationId,
       notes,
       purchaseType,
+    },
+    include: {
+      location: {
+        select: { id: true, name: true },
+      },
     },
   });
 
@@ -74,13 +83,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.created).json({
     status: "success",
     message: `Asset created successfully: ${name} (${serialNumber})`,
-    data: {
-      asset,
-      location: {
-        id: location.id,
-        name: location?.name,
-      },
-    },
+    data: asset,
   });
 });
 
@@ -88,13 +91,15 @@ export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status, type, locationId } =
     req.validatedQuery as TGetAllAssetsTypes;
 
+  const where: Prisma.AssetWhereInput = {
+    isDeleted: false,
+    ...(status && { status: status as AssetStatus }),
+    ...(type && { type }),
+    ...(locationId && { locationId }),
+  };
+
   const totalAssets = await prisma.asset.findMany({
-    where: {
-      isDeleted: false,
-      ...(status && { status }),
-      ...(type && { type }),
-      ...(locationId && { locationId }),
-    },
+    where,
     orderBy: { createdAt: "desc" },
     ...generatePaginationQuery({
       page: Number(page),
@@ -118,10 +123,29 @@ export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
 export const getAssetById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params as unknown as TGetAssetByIdType;
 
-  const asset = await prisma.asset.findUnique({
+  const asset = await prisma.asset.findFirst({
     where: { id, isDeleted: false },
-    include: {
-      location: true,
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      serialNumber: true,
+      price: true,
+      purchaseDate: true,
+      warrantyExpiry: true,
+      status: true,
+      image: true,
+      notes: true,
+      purchaseType: true,
+      createdAt: true,
+      updatedAt: true,
+      location: {
+        select: {
+          id: true,
+          name: true,
+          address: true,
+        },
+      },
       assignments: true,
       repairs: true,
       RequestLog: true,
@@ -140,7 +164,7 @@ export const getAssetById = catchAsync(async (req: Request, res: Response) => {
 
 export const updateAsset = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const adminId = req.admin?.id;
+  const adminId = req.admin.id;
   const {
     name,
     type,
@@ -164,9 +188,9 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
     data: {
       name,
       type,
-      price,
-      purchaseDate,
-      warrantyExpiry,
+      price: Number(price),
+      purchaseDate: purchaseDate ? new Date(purchaseDate) : undefined,
+      warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : undefined,
       locationId,
       notes,
       purchaseType,
@@ -256,14 +280,6 @@ export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-type TGetAllAssetsLogsType = {
-  page?: number;
-  perPage?: number;
-  status?: AssetStatus;
-  type?: string;
-  locationId?: string;
-};
-
 export const getAllAssetsLogs = catchAsync(
   async (req: Request, res: Response) => {
     const validatedQuery = req.validatedQuery ?? { page: 1, perPage: 15 };
@@ -304,14 +320,14 @@ export const getAllAssetsLogs = catchAsync(
       },
       orderBy: { createdAt: "desc" },
       ...generatePaginationQuery({
-        page: Number(page) || 1,
-        perPage: Number(perPage) || 15,
+        page: Number(page),
+        perPage: Number(perPage),
       }),
     });
 
     const pagination = generatePaginationMeta({
-      page: Number(page) || 1,
-      perPage: Number(perPage) || 15,
+      page: Number(page),
+      perPage: Number(perPage),
       count: totalLogs,
     });
 
