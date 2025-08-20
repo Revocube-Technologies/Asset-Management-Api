@@ -125,14 +125,16 @@ export const deleteDepartment = catchAsync(
     const { id } = req.params;
     const adminId = req.admin.id;
 
-    const department = await prisma.department.delete({
+    const department = await prisma.department.update({
       where: { id, createdBy: adminId },
+      data: { isDeleted: true },
     });
 
     res.status(codes.noContent).json({
       status: "success",
-      message: "Department deleted successfully",
+      message: "Department soft deleted successfully",
       department,
     });
   }
 );
+

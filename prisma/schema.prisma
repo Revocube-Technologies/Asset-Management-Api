@@ -33,10 +33,10 @@ model Asset {
 }
 
 model AssetAssigned {
-  id                    String    @id @default(uuid())
-  assetId               String
-  assignedById          String
-  receivedById            String?
+  id           String  @id @default(uuid())
+  assetId      String
+  assignedById String
+  receivedById String?
 
   assignedDate          DateTime
   employeeName          String
@@ -53,17 +53,17 @@ model AssetAssigned {
 }
 
 model Admin {
-  id                   String    @id @default(uuid())
-  firstName            String
-  lastName             String?
-  email                String    @unique
-  phoneNumber          String?
-  status               String    @default("Active")
-  roleId               String?
-  password             String
-  passwordResetToken   String?
+  id                     String    @id @default(uuid())
+  firstName              String
+  lastName               String?
+  email                  String    @unique
+  phoneNumber            String?
+  status                 String    @default("Active")
+  roleId                 String?
+  password               String
+  passwordResetToken     String?
   passwordResetExpiresAt DateTime?
-  isEnabled            Boolean   @default(true)
+  isEnabled              Boolean   @default(true)
 
   role            Role?           @relation(fields: [roleId], references: [id])
   requestLogs     RequestLog[]
@@ -77,9 +77,10 @@ model Admin {
 }
 
 model Department {
-  id   String @id @default(uuid())
-  name String @unique
+  id        String  @id @default(uuid())
+  name      String  @unique
   createdBy String
+  isDeleted Boolean @default(false)
 
   assignments AssetAssigned[]
   createdAt   DateTime        @default(now())
@@ -88,10 +89,11 @@ model Department {
 }
 
 model Location {
-  id      String  @id @default(uuid())
-  name    String  @unique
-  address String?
+  id        String  @id @default(uuid())
+  name      String  @unique
+  address   String?
   createdBy String
+  isDeleted Boolean @default(false)
 
   assets    Asset[]
   createdAt DateTime @default(now())
@@ -154,8 +156,8 @@ model AssetLog {
   description String?
   eventDate   DateTime       @default(now())
 
-  asset Asset  @relation(fields: [assetId], references: [id])
-  admin Admin? @relation(fields: [adminId], references: [id])
+  asset     Asset    @relation(fields: [assetId], references: [id])
+  admin     Admin?   @relation(fields: [adminId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -221,4 +223,3 @@ enum AssetEventType {
   Updated
   Deleted
 }
-

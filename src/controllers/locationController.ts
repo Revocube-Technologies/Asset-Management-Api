@@ -124,13 +124,16 @@ export const deleteLocation = catchAsync(
   async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    await prisma.location.delete({
+    const location = await prisma.location.update({
       where: { id },
+      data: { isDeleted: true },
     });
 
     res.status(codes.noContent).json({
       status: "success",
-      message: "Location deleted successfully",
+      message: "Location soft deleted successfully",
+      location,
     });
   }
 );
+
