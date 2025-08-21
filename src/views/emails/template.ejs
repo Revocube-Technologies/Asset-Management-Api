@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= 'Revlinks' %></title>
+</head>
+<body style="background-color: #ffffff; margin: 0; padding: 0;">
+  <div style="max-width: 700px; margin: 0 auto; background-color: #ffffff;">
+
+    <!-- Header Section -->
+    <div style="background-color: #F40000; border-radius: 25px; padding: 10px 20px; margin-top: 10px;">
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="padding: 0 13px; text-align: left; vertical-align: middle;">
+            <h4 style="font-family: 'Sora', Arial, sans-serif; font-size: 32px; font-weight: 800; color: #ffffff; margin: 0;">
+              Welcome to Revlinks
+            </h4>
+            <p style="font-family: 'Sora', Arial, sans-serif; font-size: 18px; font-weight: 300; color: #fefbfb; margin: 5px 0 0;">
+              Innovation, Solutions, Simplifying Lifestyle
+            </p>
+          </td>
+          <td style="text-align: right;">
+            <img src="<%= imageUrl %>" alt="Revlinks" style="width: 220px; border-radius: 15px; display: block;" />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+
+    <div style="border-radius: 40px; padding: 40px 50px 40px 80px; margin-top: 30px; font-family: 'Sora', Arial, sans-serif; color: #000000; border: 1px solid #ededed; background-color: #ffffff;">
+      <p style="font-weight: 600; font-size: 15px; margin: 0 0 20px;">Hello <%= fullName %>,</p>
+
+      <% if (sections && sections.length > 0) { %>
+        <% sections.forEach(function(section) { %>
+          <% if (section.tag === 'ul') { %>
+            <p><%= section.content %></p>
+            <ul style="list-style-type: square; padding: 0 20px; font-weight: 400; font-size: 14px; line-height: 22px; margin: 10px 0;">
+              <% section.bullets.forEach(function(bullet) { %>
+                <li><%= bullet %></li>
+              <% }); %>
+            </ul>
+          <% } else if (section.tag === 'button') { %>
+            <a href="<%= section.url %>" style="background-color:#F40000;color:#fff;padding:10px 20px;text-decoration:none;border-radius:6px;display:inline-block;">
+              <%= section.content %>
+            </a>
+          <% } else if (section.tag === 'raw') { %>
+            <%- section.html %>
+          <% } else { %>
+            <p style="font-weight: 400; font-size: 14px; line-height: 22px; margin: 10px 0;">
+              <%= section.content %>
+            </p>
+          <% } %>
+        <% }); %>
+      <% } %>
+
+      <p style="font-size: 15px; font-weight: 800; margin: 20px 0 0;">—The Revlinks Team</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #000000; border-radius: 40px; padding: 20px 50px; margin-top: 30px; text-align: center; font-family: 'Sora', Arial, sans-serif; font-weight: 300; font-size: 14px; line-height: 20px; color: #ffffff;">
+      <p style="margin: 10px 0;">Got any concerns? Contact us at <a href="mailto:info@revocubelinks.com" style="color: #F40000;">info@revocubelinks.com</a></p>
+
+      <p style="margin: 10px 0;">
+        Follow us on 
+        <a href="<%= xUrl %>" style="color: #F40000;">X</a>, 
+        <a href="<%= instagramUrl %>" style="color: #F40000;">Instagram</a>, 
+        <a href="<%= linkedinUrl %>" style="color: #F40000;">LinkedIn</a>
+      </p>
+
+      <p style="font-weight: 800; font-size: 13px; margin: 20px 0 0; color: #ededed;">© 2025 Revlinks. All Rights Reserved.</p>
+    </div>
+
+  </div>
+</body>
+</html>
