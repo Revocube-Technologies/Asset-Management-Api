@@ -190,6 +190,7 @@ export const getRequestById = catchAsync(
 
     res.status(codes.success).json({
       status: "success",
+      message: "Request retrieved successfully",
       data: request,
     });
   }

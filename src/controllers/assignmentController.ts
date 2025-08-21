@@ -191,6 +191,7 @@ export const getAssignmentById = catchAsync(
 
     res.status(codes.success).json({
       status: "success",
+      message: "Assignment retrieved successfully",
       data: assignment,
     });
   }

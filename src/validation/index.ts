@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as Yup from "yup";
 import { AnySchema } from "yup";
+import codes from "../utils/statusCode";
 
 export const validateRequestParameters =
   (schema: AnySchema, property: "body" | "query" | "params" = "body") =>
@@ -21,7 +22,7 @@ export const validateRequestParameters =
 
       next();
     } catch (err: any) {
-      res.status(400).json({
+      res.status(codes.badRequest).json({
         success: false,
         message: "Validation failed",
         errors: err.errors,

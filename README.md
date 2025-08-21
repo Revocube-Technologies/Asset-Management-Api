@@ -28,7 +28,7 @@ This service provides secure and scalable endpoints for managing organizational 
 ## 📌 Setup
 ```bash
 # Clone repo
-[git clone https://github.com/yourusername/asset-management-backend.git
+[git clone https://github.com/ben-236/asset-management-backend.git
 # Install dependencies
 npm install
 

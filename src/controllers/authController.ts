@@ -151,7 +151,7 @@ export const updateAdmin = catchAsync(async (req: Request, res: Response) => {
     data: { firstName, lastName, phoneNumber, roleId, permissions },
   });
 
-  res.status(codes.success).json({ status: "success", user: admin });
+  res.status(codes.success).json({ status: "success", message: "Admin updated successfully", user: admin });
 });
 
 export const loginAdmin = catchAsync(async (req: Request, res: Response) => {

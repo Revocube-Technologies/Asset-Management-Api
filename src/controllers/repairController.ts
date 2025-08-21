@@ -166,6 +166,7 @@ export const getRepairById = catchAsync(async (req: Request, res: Response) => {
 
   res.status(codes.success).json({
     status: "success",
+    message: "Repair log retrieved successfully",
     data: repair,
   });
 });

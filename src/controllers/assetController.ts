@@ -88,7 +88,8 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
-  const { page, perPage, status, type, locationId } = req.query as unknown as TGetAllAssetsTypes;
+  const { page, perPage, status, type, locationId } =
+    req.query as unknown as TGetAllAssetsTypes;
 
   const where: Prisma.AssetWhereInput = {
     isDeleted: false,
@@ -107,8 +108,8 @@ export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
   });
 
   const assetCount = await prisma.asset.count({
-    where,  
-  })
+    where,
+  });
 
   const pagination = generatePaginationMeta({
     page,
@@ -120,8 +121,9 @@ export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
     status: "success",
     message: "Assets retrieved successfully",
     data: {
-    pagination, assets,
-    }
+      pagination,
+      assets,
+    },
   });
 });
 
@@ -163,7 +165,8 @@ export const getAssetById = catchAsync(async (req: Request, res: Response) => {
 
   res.status(codes.success).json({
     status: "success",
-    asset,
+    message: "Asset retrieved successfully",
+    data: asset,
   });
 });
 
@@ -214,7 +217,10 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.success).json({
     status: "success",
     message: "Asset updated successfully",
-    asset,
+    data: {
+      ...asset,
+      image: imageUrl
+  },
   });
 });
 
@@ -241,10 +247,11 @@ export const changeAssetStatus = catchAsync(
     res.status(codes.success).json({
       status: "success",
       message: "Asset status updated successfully",
+      data: {
       asset,
+    }
     });
-  }
-);
+  });
 
 export const deleteAsset = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -280,15 +287,17 @@ export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
 
   res.status(codes.success).json({
     status: "success",
-    results: logs.length,
-    logs,
+    message: "Asset logs retrieved successfully",
+    data: { 
+      logs,
+    }
   });
 });
 
 export const getAllAssetsLogs = catchAsync(
   async (req: Request, res: Response) => {
     const { page, perPage, status, type, locationId } =
-    req.query as unknown as TGetAllAssetsLogsType;
+      req.query as unknown as TGetAllAssetsLogsType;
 
     const where: Prisma.AssetLogWhereInput = {
       asset: {
