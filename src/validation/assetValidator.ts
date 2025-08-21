@@ -1,5 +1,6 @@
 import * as Yup from "yup";
 import { purchaseStatus, AssetStatus } from "@prisma/client";
+import { paginationValidation } from "root/src/validation";
 
 export const createAssetValidator = Yup.object().shape({
   name: Yup.string().required("Asset name is required"),
@@ -15,14 +16,12 @@ export const createAssetValidator = Yup.object().shape({
 });
 
 export const getAllAssetsValidator = Yup.object().shape({
-  page: Yup.number().positive("Page number must be positive").default(1),
-  perPage: Yup.number().positive("Items per page must be positive").default(15),
   status: Yup.string()
     .optional()
     .oneOf(["Available", "Assigned", "Retired"], "Invalid asset status"),
   type: Yup.string().optional().nullable(),
   locationId: Yup.string().optional().nullable(),
-});
+}).concat(paginationValidation);
 
 export const getAssetByIdValidator = Yup.object().shape({
   id: Yup.string().uuid().required("ID is required").uuid("Invalid ID format"),

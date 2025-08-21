@@ -12,7 +12,6 @@ import {
 import {
   generatePaginationQuery,
   generatePaginationMeta,
-  generateRangeQuery,
 } from "root/src/utils/query";
 import { Prisma } from "@prisma/client";
 
@@ -115,7 +114,7 @@ export const updateRequestStatus = catchAsync(
 export const getAllRequests = catchAsync(
   async (req: Request, res: Response) => {
     const { page, perPage, status, departmentId, assetId, minDate, maxDate } =
-      req.validatedQuery as TGetAllRequestsType;
+      req.query as unknown as TGetAllRequestsType;
 
     const where: Prisma.RequestLogWhereInput = {
       ...(status && { requestStatus: { equals: status } }),
@@ -146,22 +145,24 @@ export const getAllRequests = catchAsync(
       },
       orderBy: { createdAt: "desc" },
       ...generatePaginationQuery({
-        page: Number(page),
-        perPage: Number(perPage),
+        page,
+        perPage,
       }),
     });
 
     const pagination = generatePaginationMeta({
-      page: Number(page),
-      perPage: Number(perPage),
+      page,
+      perPage,
       count: totalRequests,
     });
 
     res.status(codes.success).json({
       status: "success",
-      ...pagination,
-      results: requests.length,
-      data: requests,
+      message: "Requests retrieved successfully",
+      data: {
+        pagination,
+        requests,
+      },
     });
   }
 );

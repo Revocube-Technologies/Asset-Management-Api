@@ -84,7 +84,7 @@ export const completeRepair = catchAsync(
 );
 
 export const getRepairs = catchAsync(async (req: Request, res: Response) => {
-  const { page, perPage, status } = req.validatedQuery as TGetRepairsType;
+  const { page, perPage, status } = req.query as unknown as TGetRepairsType;
 
   const where: Prisma.RepairLogWhereInput = {
     ...(status && { repairStatus: status }),
@@ -105,22 +105,24 @@ export const getRepairs = catchAsync(async (req: Request, res: Response) => {
     },
     orderBy: { createdAt: "desc" },
     ...generatePaginationQuery({
-      page: Number(page) || 1,
-      perPage: Number(perPage) || 15,
+      page,
+      perPage,
     }),
   });
 
   const pagination = generatePaginationMeta({
-    page: Number(page) || 1,
-    perPage: Number(perPage) || 15,
+    page,
+    perPage,
     count: totalRepairs,
   });
 
   res.status(codes.success).json({
     status: "success",
+    message: "Repairs retrieved successfully",
+    data: {
     ...pagination,
-    results: repairs.length,
-    data: repairs,
+    repairs,
+    },
   });
 });
 

@@ -3,15 +3,8 @@ import prisma from "root/prisma";
 import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
-import {
-  TCreateAssignmentType,
-  TGetAllAssignmentsType,
-  TReturnAssetType,
-} from "../validation/assignmentValidator";
-import {
-  generatePaginationQuery,
-  generatePaginationMeta,
-} from "root/src/utils/query";
+import {TCreateAssignmentType, TGetAllAssignmentsType, TReturnAssetType} from "../validation/assignmentValidator";
+import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
 
 export const createAssignment = catchAsync(
   async (req: Request, res: Response) => {
@@ -117,7 +110,7 @@ export const returnAsset = catchAsync(async (req: Request, res: Response) => {
 
 export const getAllAssignments = catchAsync(
   async (req: Request, res: Response) => {
-    const { page, perPage } = req.validatedQuery as TGetAllAssignmentsType;
+    const { page, perPage } = req.query as unknown as TGetAllAssignmentsType;
 
     const totalAssignments = await prisma.assetAssigned.count();
 
@@ -156,22 +149,24 @@ export const getAllAssignments = catchAsync(
       },
       orderBy: { createdAt: "desc" },
       ...generatePaginationQuery({
-        page: Number(page),
-        perPage: Number(perPage),
+        page,
+        perPage,
       }),
     });
 
     const pagination = generatePaginationMeta({
-      page: Number(page),
-      perPage: Number(perPage),
+      page,
+      perPage,
       count: totalAssignments,
     });
 
     res.status(codes.success).json({
       status: "success",
-      ...pagination,
-      results: assignments.length,
-      data: assignments,
+      message: "Assignments retrieved successfully",
+      data: {
+        pagination,
+        assignments,
+      },
     });
   }
 );

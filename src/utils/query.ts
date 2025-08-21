@@ -26,15 +26,3 @@ export const generatePaginationMeta = ({
     totalPages: Math.ceil(count / perPage),
   },
 });
-
-type TRangeQuery<T> = { min?: unknown; max?: unknown; field?: T };
-export const generateRangeQuery = <T extends string = "createdAt">({
-  min,
-  max,
-  field = "createdAt" as T,
-}: TRangeQuery<T>) => ({
-  [field]: {
-    ...(min !== undefined ? { gte: min } : {}),
-    ...(max !== undefined ? { lte: max } : {}),
-  },
-});

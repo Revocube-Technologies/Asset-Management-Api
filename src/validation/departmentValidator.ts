@@ -1,4 +1,5 @@
 import * as Yup from "yup";
+import { paginationValidation } from ".";
 
 export const createDepartmentValidator = Yup.object().shape({
   name: Yup.string().required("Department name is required"),
@@ -9,9 +10,7 @@ export const getDepartmentValidator = Yup.object().shape({
 });
 
 export const getAllDepartmentsValidator = Yup.object().shape({
-  page: Yup.number().positive("Page number must be positive").default(1),
-  perPage: Yup.number().positive("Items per page must be positive").default(15),
-});
+}).concat(paginationValidation);
 
 export const updateDepartmentValidator = Yup.object().shape({
   name: Yup.string(),

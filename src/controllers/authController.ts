@@ -322,9 +322,11 @@ export const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
 
   res.status(codes.success).json({
     status: "success",
-    ...pagination,
-    results: users.length,
-    users,
+    message: "Admins retrieved successfully",
+    data: {
+      pagination,
+      users,
+    },
   });
 });
 

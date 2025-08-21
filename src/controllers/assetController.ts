@@ -88,8 +88,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
-  const { page, perPage, status, type, locationId } =
-    req.validatedQuery as TGetAllAssetsTypes;
+  const { page, perPage, status, type, locationId } = req.query as unknown as TGetAllAssetsTypes;
 
   const where: Prisma.AssetWhereInput = {
     isDeleted: false,
@@ -98,25 +97,31 @@ export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
     ...(locationId && { locationId }),
   };
 
-  const totalAssets = await prisma.asset.findMany({
+  const assets = await prisma.asset.findMany({
     where,
     orderBy: { createdAt: "desc" },
     ...generatePaginationQuery({
-      page: Number(page),
-      perPage: Number(perPage),
+      page,
+      perPage,
     }),
   });
 
+  const assetCount = await prisma.asset.count({
+    where,  
+  })
+
   const pagination = generatePaginationMeta({
-    page: Number(page),
-    perPage: Number(perPage),
-    count: totalAssets.length,
+    page,
+    perPage,
+    count: assetCount,
   });
 
   res.status(codes.success).json({
     status: "success",
-    ...pagination,
-    results: totalAssets,
+    message: "Assets retrieved successfully",
+    data: {
+    pagination, assets,
+    }
   });
 });
 
@@ -282,9 +287,8 @@ export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
 
 export const getAllAssetsLogs = catchAsync(
   async (req: Request, res: Response) => {
-    const validatedQuery = req.validatedQuery ?? { page: 1, perPage: 15 };
     const { page, perPage, status, type, locationId } =
-      validatedQuery as TGetAllAssetsLogsType;
+    req.query as unknown as TGetAllAssetsLogsType;
 
     const where: Prisma.AssetLogWhereInput = {
       asset: {
@@ -320,22 +324,24 @@ export const getAllAssetsLogs = catchAsync(
       },
       orderBy: { createdAt: "desc" },
       ...generatePaginationQuery({
-        page: Number(page),
-        perPage: Number(perPage),
+        page,
+        perPage,
       }),
     });
 
     const pagination = generatePaginationMeta({
-      page: Number(page),
-      perPage: Number(perPage),
+      page,
+      perPage,
       count: totalLogs,
     });
 
     res.status(codes.success).json({
       status: "success",
-      ...pagination,
-      results: logs.length,
-      data: logs,
+      message: "Asset logs retrieved successfully",
+      data: {
+        pagination,
+        logs,
+      },
     });
   }
 );
