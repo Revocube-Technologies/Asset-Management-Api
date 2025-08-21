@@ -55,7 +55,7 @@ model AssetAssigned {
 model Admin {
   id                     String    @id @default(uuid())
   firstName              String
-  lastName               String?
+  lastName               String
   email                  String    @unique
   phoneNumber            String?
   status                 String    @default("Active")

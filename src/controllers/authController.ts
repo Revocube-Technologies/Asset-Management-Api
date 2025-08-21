@@ -27,6 +27,7 @@ import { getFrontendUrl } from "root/src/utils/function";
 import { comparePassword } from "root/src/utils/function";
 import { generateResetToken } from "root/src/utils/token";
 import crypto from "crypto";
+import EmailService from "../service/emailService";
 
 const generateUserToken = (user: Admin) => {
   return jwt.sign(
@@ -121,7 +122,11 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
-  //TODO: send welcome email with login details
+  await EmailService.sendWelcomeAdminEmail({
+    firstName,
+    email,
+    password,
+  });
 
   res.status(codes.created).json({
     status: "success",
@@ -151,7 +156,11 @@ export const updateAdmin = catchAsync(async (req: Request, res: Response) => {
     data: { firstName, lastName, phoneNumber, roleId, permissions },
   });
 
-  res.status(codes.success).json({ status: "success", message: "Admin updated successfully", user: admin });
+  res.status(codes.success).json({
+    status: "success",
+    message: "Admin updated successfully",
+    user: admin,
+  });
 });
 
 export const loginAdmin = catchAsync(async (req: Request, res: Response) => {
@@ -199,9 +208,15 @@ export const adminForgotPassword = catchAsync(
       },
     });
 
-    const passwordResetUrl = getFrontendUrl(`/api/v1/admin/auth/reset-password/:${resetToken}}`);
+    const passwordResetUrl = getFrontendUrl(
+      `/api/v1/admin/auth/reset-password/:${resetToken}}`
+    );
 
-    //TODO: add email sendAdminResetPassword
+    await EmailService.sendAdminResetPassword({
+      email: admin.email,
+      firstName: admin.firstName!,
+      passwordResetUrl,
+    });
 
     res.status(codes.success).json({
       status: "success",
