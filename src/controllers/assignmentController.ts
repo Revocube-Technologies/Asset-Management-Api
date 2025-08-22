@@ -3,8 +3,15 @@ import prisma from "root/prisma";
 import { Request, Response } from "express";
 import codes from "../utils/statusCode";
 import catchAsync from "../utils/catchAsync";
-import {TCreateAssignmentType, TGetAllAssignmentsType, TReturnAssetType} from "../validation/assignmentValidator";
-import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
+import {
+  TCreateAssignmentType,
+  TGetAllAssignmentsType,
+  TReturnAssetType,
+} from "../validation/assignmentValidator";
+import {
+  generatePaginationQuery,
+  generatePaginationMeta,
+} from "root/src/utils/query";
 
 export const createAssignment = catchAsync(
   async (req: Request, res: Response) => {
@@ -70,10 +77,6 @@ export const returnAsset = catchAsync(async (req: Request, res: Response) => {
   const { assignmentId, conditionAtReturn } =
     req.body as unknown as TReturnAssetType;
 
-  if (!assignmentId) {
-    throw new AppError(codes.badRequest, "Assignment ID is required");
-  }
-
   const assignment = await prisma.assetAssigned.findUnique({
     where: { id: assignmentId },
     include: { asset: true },
@@ -95,7 +98,6 @@ export const returnAsset = catchAsync(async (req: Request, res: Response) => {
       receivedById: adminId,
     },
   });
-  
 
   await prisma.asset.update({
     where: { id: assignment.assetId },
@@ -174,7 +176,6 @@ export const getAllAssignments = catchAsync(
 
 export const getAssignmentById = catchAsync(
   async (req: Request, res: Response) => {
-    const adminId = req.admin.id;
     const { id } = req.params;
 
     const assignment = await prisma.assetAssigned.findUnique({

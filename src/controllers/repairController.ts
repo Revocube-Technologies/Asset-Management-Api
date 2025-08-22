@@ -13,13 +13,12 @@ import {
   generatePaginationQuery,
   generatePaginationMeta,
 } from "root/src/utils/query";
-import { Prisma, RepairStatus } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export const logRepair = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin.id;
   const { id: assetId } = req.params;
-  const { description, repairCost, repairedBy, requestLogId } =
-    req.body as unknown as TLogRepairType;
+  const { description, repairCost, repairedBy, requestLogId } = req.body as unknown as TLogRepairType;
 
   const asset = await prisma.asset.findUnique({ where: { id: assetId } });
   if (!asset) throw new AppError(codes.notFound, "Asset not found");
