@@ -55,7 +55,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       name,
       type,
       serialNumber,
-      price: Number(price),
+      price,
       image: imageUrl,
       purchaseDate: new Date(purchaseDate),
       warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : null,

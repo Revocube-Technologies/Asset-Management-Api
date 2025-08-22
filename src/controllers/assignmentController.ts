@@ -95,6 +95,7 @@ export const returnAsset = catchAsync(async (req: Request, res: Response) => {
       receivedById: adminId,
     },
   });
+  
 
   await prisma.asset.update({
     where: { id: assignment.assetId },

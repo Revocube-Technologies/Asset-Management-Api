@@ -12,7 +12,7 @@ model Asset {
   name           String
   type           String
   serialNumber   String         @unique
-  price          Int
+  price          Decimal
   image          String
   purchaseDate   DateTime
   warrantyExpiry DateTime?
@@ -124,7 +124,7 @@ model RepairLog {
   assetId      String
   repairDate   DateTime     @default(now())
   description  String?
-  repairCost   Float?
+  repairCost   Decimal?
   repairedBy   String?
   repairStatus RepairStatus @default(Pending)
   requestLogId String?
