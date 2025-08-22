@@ -64,7 +64,7 @@ export const completeRepair = catchAsync(
       where: { id },
       data: {
         repairStatus: "Completed",
-        description: remarks || repair.description,
+        description: remarks,
         updatedAt: new Date(),
       },
     });
