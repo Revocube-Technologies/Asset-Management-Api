@@ -196,7 +196,7 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
     data: {
       name,
       type,
-      price: Number(price),
+      price,
       purchaseDate: purchaseDate ? new Date(purchaseDate) : undefined,
       warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : undefined,
       locationId,

@@ -8,6 +8,7 @@ import {
   TGetRepairByIdType,
   TLogRepairType,
   TGetRepairsType,
+  TGeneralMaintenanceType,
 } from "../validation/repairValidator";
 import {
   generatePaginationQuery,
@@ -18,7 +19,8 @@ import { Prisma } from "@prisma/client";
 export const logRepair = catchAsync(async (req: Request, res: Response) => {
   const adminId = req.admin.id;
   const { id: assetId } = req.params;
-  const { description, repairCost, repairedBy, requestLogId } = req.body as unknown as TLogRepairType;
+  const { description, repairCost, repairedBy, requestLogId } =
+    req.body as unknown as TLogRepairType;
 
   const asset = await prisma.asset.findUnique({ where: { id: assetId } });
   if (!asset) throw new AppError(codes.notFound, "Asset not found");
@@ -119,8 +121,8 @@ export const getRepairs = catchAsync(async (req: Request, res: Response) => {
     status: "success",
     message: "Repairs retrieved successfully",
     data: {
-    ...pagination,
-    repairs,
+      ...pagination,
+      repairs,
     },
   });
 });
@@ -169,3 +171,56 @@ export const getRepairById = catchAsync(async (req: Request, res: Response) => {
     data: repair,
   });
 });
+
+export const createGeneralMaintenance = catchAsync(
+  async (req: Request, res: Response) => {
+    const adminId = req.admin.id; 
+
+    if (!adminId) {
+      throw new AppError(codes.unAuthorized, "Admin not found in request");
+    }
+
+    const { description, repairedBy, repairCost, assetIds } =
+      req.body as unknown as TGeneralMaintenanceType;
+
+
+    const validAssetIds = (assetIds || []).filter(
+      (id): id is string => typeof id === "string" && id.trim().length > 0
+    );
+
+    if (validAssetIds.length === 0) {
+      throw new AppError(codes.badRequest, "At least one valid asset is required");
+    }
+
+    const assets = await prisma.asset.findMany({
+      where: { id: { in: validAssetIds }, isDeleted: false },
+      select: { id: true },
+    });
+
+    if (assets.length !== validAssetIds.length) {
+      throw new AppError(codes.notFound, "Some assets were not found");
+    }
+
+
+    const repairLogs = await prisma.$transaction(
+      validAssetIds.map((assetId) =>
+        prisma.repairLog.create({
+          data: {
+            description,
+            repairedBy,
+            repairCost,
+            assetId,  
+            adminId,
+          },
+        })
+      )
+    );
+
+    res.status(codes.success).json({
+      status: "success",
+      message: "General maintenance logs created successfully",
+      count: repairLogs.length,
+      data: repairLogs,
+    });
+  }
+);

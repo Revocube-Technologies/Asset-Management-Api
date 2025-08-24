@@ -30,7 +30,20 @@ export const getRepairsValidator = Yup.object().shape({
     .oneOf(Object.values(RepairStatus), "Invalid repair status"),
 });
 
+export const generalMaintenanceValidator = Yup.object().shape({
+  description: Yup.string().required("Description is required"),
+  repairedBy: Yup.string().required("Repaired by is required"),
+  repairCost: Yup.number().required("Repair cost is required").min(0),
+  assetIds: Yup.array()
+    .of(Yup.string().uuid("Invalid asset id"))
+    .min(1, "At least one asset must be provided")
+    .required(),
+});
+
+
 export type TLogRepairType = Yup.InferType<typeof logRepairValidator>;
 export type TCompleteRepairType = Yup.InferType<typeof completeRepairValidator>;
 export type TGetRepairsType = Yup.InferType<typeof getRepairsValidator>;
 export type TGetRepairByIdType = Yup.InferType<typeof getRepairByIdValidator>;
+export type TGeneralMaintenanceType = Yup.InferType<
+  typeof generalMaintenanceValidator>;

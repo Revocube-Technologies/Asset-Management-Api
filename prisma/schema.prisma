@@ -29,7 +29,7 @@ model Asset {
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
   RequestLog RequestLog[]
-  AssetLog   AssetLog[]
+  
 }
 
 model AssetAssigned {
@@ -73,7 +73,6 @@ model Admin {
   auditLogs       AuditLog[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
-  AssetLog        AssetLog[]
 }
 
 model Department {
@@ -144,20 +143,6 @@ model Role {
   role        AdminRole @default(admin)
 
   admins    Admin[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model AssetLog {
-  id          String         @id @default(uuid())
-  assetId     String
-  adminId     String?
-  eventType   AssetEventType
-  description String?
-  eventDate   DateTime       @default(now())
-
-  asset     Asset    @relation(fields: [assetId], references: [id])
-  admin     Admin?   @relation(fields: [adminId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
