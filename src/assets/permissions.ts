@@ -2,53 +2,86 @@ export const PERMISSIONS = [
   {
     group: "Assets",
     permissions: [
+      "assets:view",
       "assets:create",
       "assets:update",
-      "assets: delete",
-      "assets:changStatus",
+      "assets:delete",
+      "assets:changeStatus"
     ],
   },
   {
     group: "Assignments",
     permissions: [
-      "assignments: create",
-      "assignments: update",
-      "assignments: delete",
+      "assignments:view",
+      "assignments:create",
+      "assignments:update",
+      "assignments:delete",
     ],
   },
   {
     group: "Departments",
     permissions: [
-      "departments: create",
-      "departments: update",
-      "departments: delete",
+      "departments:view",
+      "departments:create",
+      "departments:update",
+      "departments:delete",
     ],
   },
   {
     group: "Locations",
-    permissions: ["location:create", "location:update", "location:delete"],
+    permissions: [
+      "locations:view",
+      "locations:create",
+      "locations:update",
+      "locations:delete",
+    ],
   },
   {
     group: "Repairs",
-    permissions: ["repairs:create", "repairs:update", "repairs:delete"],
+    permissions: [
+      "repairs:view",
+      "repairs:create",
+      "repairs:update",
+      "repairs:delete",
+    ],
   },
   {
     group: "Requests",
-    permissions: ["requests:create", "requests:update", "requests:delete"],
+    permissions: [
+      "requests:view",
+      "requests:create",
+      "requests:update",
+      "requests:delete",
+    ],
   },
   {
     group: "Roles",
-    permissions: ["roles:create", "roles:update", "roles:delete"],
+    permissions: [
+      "roles:view",
+      "roles:create",
+      "roles:update",
+      "roles:delete",
+    ],
   },
   {
     group: "Admins",
-    permissions: ["admins:create", "admins:update", "admins:delete"],
+    permissions: [
+      "admins:view",
+      "admins:create",
+      "admins:update",
+      "admins:delete",
+    ],
   },
 ];
 
 export const COMPULSORY_PERMISSIONS = [
   "assets:view",
-  "assignment:view",
+  "assignments:view",
+  "departments:view",
+  "locations:view",
+  "repairs:view",
   "requests:view",
-  "repair:view",
+  "roles:view",
+  "admins:view"
 ];
+
