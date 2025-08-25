@@ -4,6 +4,7 @@ import {
   completeRepair,
   getRepairs,
   getRepairById,
+  createGeneralMaintenance,
 } from "root/src/controllers/repairController";
 import { protectRoute } from "root/src/middlewares/authMiddleware";
 import validateRequestParameters from "root/src/validation";
@@ -12,6 +13,7 @@ import {
   completeRepairValidator,
   getRepairsValidator,
   getRepairByIdValidator,
+  generalMaintenanceValidator,
 } from "root/src/validation/repairValidator";
 
 const repairRouter = Router();
@@ -43,5 +45,13 @@ repairRouter.get(
   validateRequestParameters(getRepairByIdValidator, "params"),
   getRepairById
 );
+
+repairRouter.post(
+  "/general",
+  protectRoute,
+  validateRequestParameters(generalMaintenanceValidator, "body"),
+  createGeneralMaintenance
+);
+
 
 export default repairRouter;

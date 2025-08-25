@@ -32,12 +32,14 @@ export const getRepairsValidator = Yup.object().shape({
 
 export const generalMaintenanceValidator = Yup.object().shape({
   description: Yup.string().required("Description is required"),
-  repairedBy: Yup.string().required("Repaired by is required"),
-  repairCost: Yup.number().required("Repair cost is required").min(0),
+  repairedBy: Yup.string().required("RepairedBy is required"),
+  repairCost: Yup.number()
+    .positive("Repair cost must be a positive number")
+    .required("Repair cost is required"),
   assetIds: Yup.array()
-    .of(Yup.string().uuid("Invalid asset id"))
-    .min(1, "At least one asset must be provided")
-    .required(),
+    .of(Yup.string().required("Each assetId must be a valid string"))
+    .min(1, "At least one assetId is required")
+    .required("AssetIds are required"),
 });
 
 
