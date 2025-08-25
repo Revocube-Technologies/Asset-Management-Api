@@ -308,6 +308,7 @@ export const getAllAdmins = catchAsync(async (req: Request, res: Response) => {
   const totalAdmins = await prisma.admin.count();
 
   const users = await prisma.admin.findMany({
+    where: { isDeleted: false },
     select: {
       id: true,
       firstName: true,

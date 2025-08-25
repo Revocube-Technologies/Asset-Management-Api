@@ -64,6 +64,7 @@ model Admin {
   passwordResetToken     String?
   passwordResetExpiresAt DateTime?
   isEnabled              Boolean   @default(true)
+  isDeleted              Boolean   @default(false)
 
 
   role            Role?           @relation(fields: [roleId], references: [id])
@@ -152,7 +153,7 @@ model AuditLog {
   id          String @id @default(uuid())
   adminId     String
   ipAddress   String
-  action      Json
+  action      String
   request     Json
   response    Json
   timeElapsed Int

@@ -49,8 +49,12 @@ export const updateRole = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+
 export const getRoles = catchAsync(async (_req: Request, res: Response) => {
-  const roles = await prisma.role.findMany();
+  const roles = await prisma.role.findMany({
+    where: { isDeleted: false }, 
+  });
 
   res.status(codes.success).json({
     status: "success",
@@ -58,6 +62,7 @@ export const getRoles = catchAsync(async (_req: Request, res: Response) => {
     data: roles,
   });
 });
+
 
 export const deleteRole = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
