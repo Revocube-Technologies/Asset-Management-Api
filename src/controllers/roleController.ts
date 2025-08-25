@@ -3,14 +3,9 @@ import catchAsync from "root/src/utils/catchAsync";
 import prisma from "root/prisma";
 import codes from "root/src/utils/statusCode";
 import { AppError } from "root/src/utils/error";
-import {
-  PERMISSIONS,
-  COMPULSORY_PERMISSIONS,
-} from "root/src/assets/permissions";
-import {
-  CreateRoleType,
-  UpdateRoleType,
-} from "root/src/validation/roleValidator";
+import {PERMISSIONS, COMPULSORY_PERMISSIONS} from "root/src/assets/permissions";
+import {CreateRoleType, UpdateRoleType} from "root/src/validation/roleValidator";
+
 
 export const createRole = catchAsync(async (req: Request, res: Response) => {
   const { name, permissions: requestPermissions } =

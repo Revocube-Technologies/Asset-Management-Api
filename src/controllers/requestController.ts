@@ -1,18 +1,10 @@
 import prisma from "root/prisma";
 import { Request, Response } from "express";
-import codes from "../utils/statusCode";
-import catchAsync from "../utils/catchAsync";
+import codes from "root/src/utils/statusCode";
+import catchAsync from "root/src/utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import {
-  TCreateRequestType,
-  TGetAllRequestsType,
-  TGetRequestByIdType,
-  TUpdateRequestStatusType,
-} from "../validation/requestValidator";
-import {
-  generatePaginationQuery,
-  generatePaginationMeta,
-} from "root/src/utils/query";
+import {TCreateRequestType, TGetAllRequestsType, TGetRequestByIdType, TUpdateRequestStatusType} from "root/src/validation/requestValidator";
+import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
 import { Prisma } from "@prisma/client";
 
 export const createRequest = catchAsync(async (req: Request, res: Response) => {

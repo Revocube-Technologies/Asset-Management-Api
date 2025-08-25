@@ -1,18 +1,10 @@
 import prisma from "root/prisma";
 import { Request, Response } from "express";
-import codes from "../utils/statusCode";
-import catchAsync from "../utils/catchAsync";
-import {
-  TCreateDepartmentType,
-  TGetAllDepartmentType,
-  TGetDepartmentType,
-  TUpdateDepartmentType,
-} from "../validation/departmentValidator";
-import {
-  generatePaginationQuery,
-  generatePaginationMeta,
-} from "root/src/utils/query";
-import { AppError } from "../utils/error";
+import codes from "root/src/utils/statusCode";
+import catchAsync from "root/src/utils/catchAsync";
+import {TCreateDepartmentType, TGetAllDepartmentType, TGetDepartmentType, TUpdateDepartmentType} from "root/src/validation/departmentValidator";
+import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
+import { AppError } from "root/src/utils/error";
 
 export const createDepartment = catchAsync(
   async (req: Request, res: Response) => {

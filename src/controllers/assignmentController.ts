@@ -1,17 +1,11 @@
 import { AppError } from "root/src/utils/error";
 import prisma from "root/prisma";
 import { Request, Response } from "express";
-import codes from "../utils/statusCode";
-import catchAsync from "../utils/catchAsync";
-import {
-  TCreateAssignmentType,
-  TGetAllAssignmentsType,
-  TReturnAssetType,
-} from "../validation/assignmentValidator";
-import {
-  generatePaginationQuery,
-  generatePaginationMeta,
-} from "root/src/utils/query";
+import codes from "root/src/utils/statusCode";
+import catchAsync from "root/src/utils/catchAsync";
+import {TCreateAssignmentType, TGetAllAssignmentsType, TReturnAssetType} from "root/src/validation/assignmentValidator";
+import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
+
 
 export const createAssignment = catchAsync(
   async (req: Request, res: Response) => {

@@ -4,18 +4,9 @@ import { Request, Response } from "express";
 import uploadImageToCloudinary from "root/src/service/imageUploadService";
 import { generateSerialNumber } from "root/src/utils/function";
 import codes from "root/src/utils/statusCode";
-import catchAsync from "../utils/catchAsync";
-import {
-  generatePaginationQuery,
-  generatePaginationMeta,
-} from "root/src/utils/query";
-import {
-  TChangeAssetStatusType,
-  TCreateAssetType,
-  TGetAssetByIdType,
-  TUpdateAssetType,
-  TGetAllAssetsTypes,
-} from "../validation/assetValidator";
+import catchAsync from "root/src/utils/catchAsync";
+import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
+import {TChangeAssetStatusType, TCreateAssetType, TGetAssetByIdType, TUpdateAssetType, TGetAllAssetsTypes} from "root/src/validation/assetValidator";
 import { AssetStatus, Prisma } from "@prisma/client";
 
 export const createAsset = catchAsync(async (req: Request, res: Response) => {

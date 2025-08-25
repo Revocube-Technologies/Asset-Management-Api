@@ -1,19 +1,10 @@
 import prisma from "root/prisma";
 import { Request, Response } from "express";
-import codes from "../utils/statusCode";
-import catchAsync from "../utils/catchAsync";
+import codes from "root/src/utils/statusCode";
+import catchAsync from "root/src/utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import {
-  TCompleteRepairType,
-  TGetRepairByIdType,
-  TLogRepairType,
-  TGetRepairsType,
-  TGeneralMaintenanceType,
-} from "../validation/repairValidator";
-import {
-  generatePaginationQuery,
-  generatePaginationMeta,
-} from "root/src/utils/query";
+import {TCompleteRepairType, TGetRepairByIdType, TLogRepairType, TGetRepairsType, TGeneralMaintenanceType} from "root/src/validation/repairValidator";
+import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
 import { Prisma } from "@prisma/client";
 
 export const logRepair = catchAsync(async (req: Request, res: Response) => {

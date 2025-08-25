@@ -1,17 +1,10 @@
 import prisma from "root/prisma";
 import { Request, Response } from "express";
-import codes from "../utils/statusCode";
-import catchAsync from "../utils/catchAsync";
+import codes from "root/src/utils/statusCode";
+import catchAsync from "root/src/utils/catchAsync";
 import { AppError } from "root/src/utils/error";
-import {
-  TCreateLocationType,
-  TUpdateLocationValidator,
-  TGetAllLocationsType,
-} from "root/src/validation/locationValidator";
-import {
-  generatePaginationMeta,
-  generatePaginationQuery,
-} from "../utils/query";
+import {TCreateLocationType, TUpdateLocationValidator, TGetAllLocationsType} from "root/src/validation/locationValidator";
+import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
 
 export const createLocation = catchAsync(
   async (req: Request, res: Response) => {
