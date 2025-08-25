@@ -11,8 +11,11 @@ import { AppError } from "./src/utils/error";
 dotenv.config();
 
 import adminRouter from "root/src/routes/index";
+import auditLogMiddleware from "./src/middlewares/auditLogMiddleware";
 
 const app = express();
+
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,6 +32,7 @@ app.use(
     referrerPolicy: false,
   })
 );
+
 const format = config.nodeEnv === "production" ? "combined" : "dev";
 app.use(morgan(format));
 app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
@@ -36,6 +40,8 @@ app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
 });
 
 //API routes
+app.use(auditLogMiddleware)
+
 app.use("/api/v1/admin", adminRouter);
 
 app.use((_req: Request, res: Response, _next: NextFunction) => {

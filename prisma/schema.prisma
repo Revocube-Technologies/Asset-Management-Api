@@ -58,12 +58,13 @@ model Admin {
   lastName               String
   email                  String    @unique
   phoneNumber            String?
-  status                 String    @default("Active")
+  status                 AdminStatus @default(Active)
   roleId                 String?
   password               String
   passwordResetToken     String?
   passwordResetExpiresAt DateTime?
   isEnabled              Boolean   @default(true)
+
 
   role            Role?           @relation(fields: [roleId], references: [id])
   requestLogs     RequestLog[]
@@ -151,7 +152,7 @@ model AuditLog {
   id          String @id @default(uuid())
   adminId     String
   ipAddress   String
-  action      String
+  action      Json
   request     Json
   response    Json
   timeElapsed Int
@@ -197,14 +198,4 @@ enum RequestStatus {
   Declined
 }
 
-enum AssetEventType {
-  Created
-  Assigned
-  Returned
-  RepairRequested
-  RepairStarted
-  RepairCompleted
-  Disposed
-  Updated
-  Deleted
-}
+

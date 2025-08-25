@@ -1,19 +1,19 @@
 {
-   "compilerOptions": {
-      "target": "es2016",
-      "module": "commonjs",
-      "outDir": "./",
-      "esModuleInterop": true,
-      "forceConsistentCasingInFileNames": true,
-      "strict": true,
-      "skipLibCheck": true,
-      "baseUrl": ".",
-      "paths": {
-         "root/*": ["./*"]
-      }
-   },
-   "include": ["types.ts", "**/*.ts"],
-   "exclude": ["node_modules", "tests"],
-   "typesRoots": ["node_modules/@types", "./types"],
-   "types": ["node"]
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "commonjs",
+    "outDir": "./",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "root/*": ["./*"]
+    },
+    "typeRoots": ["Types", "./node_modules/@types"],
+    "types": ["node"]
+  },
+  "include": ["Types/**/*.d.ts", "**/*.ts"],
+  "exclude": ["node_modules", "tests"]
 }
