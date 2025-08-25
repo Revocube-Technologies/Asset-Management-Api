@@ -3,7 +3,7 @@ import prisma from "root/prisma";
 import { Request, Response } from "express";
 import uploadImageToCloudinary from "root/src/service/imageUploadService";
 import { generateSerialNumber } from "root/src/utils/function";
-import codes from "../utils/statusCode";
+import codes from "root/src/utils/statusCode";
 import catchAsync from "../utils/catchAsync";
 import {
   generatePaginationQuery,
@@ -12,7 +12,6 @@ import {
 import {
   TChangeAssetStatusType,
   TCreateAssetType,
-  TGetAllAssetsLogsType,
   TGetAssetByIdType,
   TUpdateAssetType,
   TGetAllAssetsTypes,
@@ -63,20 +62,12 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       locationId,
       notes,
       purchaseType,
+      id: adminId
     },
     include: {
       location: {
         select: { id: true, name: true },
       },
-    },
-  });
-
-  await prisma.assetLog.create({
-    data: {
-      assetId: asset.id,
-      adminId,
-      eventType: "Created",
-      description: `Asset created: ${name} (${serialNumber})`,
     },
   });
 
@@ -202,15 +193,7 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
       locationId,
       notes,
       purchaseType,
-    },
-  });
-
-  await prisma.assetLog.create({
-    data: {
-      assetId: asset.id,
-      adminId,
-      eventType: "Updated",
-      description: `Asset updated: ${asset.name}`,
+      id: adminId,
     },
   });
 
@@ -219,8 +202,8 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
     message: "Asset updated successfully",
     data: {
       ...asset,
-      image: imageUrl
-  },
+      image: imageUrl,
+    },
   });
 });
 
@@ -232,26 +215,18 @@ export const changeAssetStatus = catchAsync(
 
     const asset = await prisma.asset.update({
       where: { id, isDeleted: false },
-      data: { status },
-    });
-
-    await prisma.assetLog.create({
-      data: {
-        assetId: asset.id,
-        adminId,
-        eventType: "Updated",
-        description: `Status changed to ${status}`,
-      },
+      data: { status, id: adminId },
     });
 
     res.status(codes.success).json({
       status: "success",
       message: "Asset status updated successfully",
       data: {
-      asset,
-    }
+        asset,
+      },
     });
-  });
+  }
+);
 
 export const deleteAsset = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -259,98 +234,14 @@ export const deleteAsset = catchAsync(async (req: Request, res: Response) => {
 
   const asset = await prisma.asset.update({
     where: { id, isDeleted: false },
-    data: { isDeleted: true },
-  });
-
-  await prisma.assetLog.create({
-    data: {
-      assetId: asset.id,
-      adminId,
-      eventType: "Deleted",
-      description: `Asset deleted: ${asset.name}`,
-    },
+    data: { isDeleted: true, id: adminId },
   });
 
   res.status(codes.noContent).json({
     status: "success",
     message: "Asset deleted successfully",
+    data: {
+      asset,
+    },
   });
 });
-
-export const getAssetLogs = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  const logs = await prisma.assetLog.findMany({
-    where: { assetId: id },
-    orderBy: { createdAt: "desc" },
-  });
-
-  res.status(codes.success).json({
-    status: "success",
-    message: "Asset logs retrieved successfully",
-    data: { 
-      logs,
-    }
-  });
-});
-
-export const getAllAssetsLogs = catchAsync(
-  async (req: Request, res: Response) => {
-    const { page, perPage, status, type, locationId } =
-      req.query as unknown as TGetAllAssetsLogsType;
-
-    const where: Prisma.AssetLogWhereInput = {
-      asset: {
-        isDeleted: false,
-        ...(status && { status: { equals: status } }),
-        ...(type && { type: { equals: type } }),
-        ...(locationId && { locationId: { equals: locationId } }),
-      },
-    };
-
-    const totalLogs = await prisma.assetLog.count({ where });
-
-    const logs = await prisma.assetLog.findMany({
-      where,
-      include: {
-        asset: {
-          select: {
-            id: true,
-            name: true,
-            serialNumber: true,
-            status: true,
-            type: true,
-            locationId: true,
-            purchaseDate: true,
-            warrantyExpiry: true,
-            price: true,
-            purchaseType: true,
-          },
-        },
-        admin: {
-          select: { id: true, firstName: true, lastName: true, email: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      ...generatePaginationQuery({
-        page,
-        perPage,
-      }),
-    });
-
-    const pagination = generatePaginationMeta({
-      page,
-      perPage,
-      count: totalLogs,
-    });
-
-    res.status(codes.success).json({
-      status: "success",
-      message: "Asset logs retrieved successfully",
-      data: {
-        pagination,
-        logs,
-      },
-    });
-  }
-);

@@ -5,9 +5,7 @@ import {
   getAssetById,
   updateAsset,
   changeAssetStatus,
-  deleteAsset,
-  getAssetLogs,
-  getAllAssetsLogs,
+  deleteAsset
 } from "root/src/controllers/assetController";
 import { protectRoute } from "root/src/middlewares/authMiddleware";
 import validateRequestParameters from "root/src/validation";
@@ -16,8 +14,7 @@ import {
   getAllAssetsValidator,
   getAssetByIdValidator,
   updateAssetValidator,
-  changeAssetStatusValidator,
-  getAllAssetsLogsValidator,
+  changeAssetStatusValidator
 } from "root/src/validation/assetValidator";
 import { upload } from "root/src/config/uploadFiles";
 
@@ -60,18 +57,6 @@ assetRouter.patch(
 
 assetRouter.delete("/delete-asset/:id", protectRoute, deleteAsset);
 
-assetRouter.get(
-  "/asset-logs/:id",
-  protectRoute,
-  validateRequestParameters(getAssetByIdValidator, "params"),
-  getAssetLogs
-);
 
-assetRouter.get(
-  "/get-all-logs",
-  protectRoute,
-  validateRequestParameters(getAllAssetsLogsValidator, "params"),
-  getAllAssetsLogs
-);
 
 export default assetRouter;

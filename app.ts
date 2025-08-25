@@ -7,6 +7,7 @@ import helmet from "helmet";
 import { JsonWebTokenError } from "jsonwebtoken";
 import morgan from "morgan";
 import config from "root/src/config/env";
+import codes from "root/src/utils/statusCode";
 import { AppError } from "./src/utils/error";
 dotenv.config();
 
@@ -14,8 +15,6 @@ import adminRouter from "root/src/routes/index";
 import auditLogMiddleware from "./src/middlewares/auditLogMiddleware";
 
 const app = express();
-
-
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -40,12 +39,12 @@ app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
 });
 
 //API routes
-app.use(auditLogMiddleware)
+app.use(auditLogMiddleware);
 
 app.use("/api/v1/admin", adminRouter);
 
 app.use((_req: Request, res: Response, _next: NextFunction) => {
-  res.status(404).send("Route not found");
+  res.status(codes.notFound).send("Route not found");
 });
 
 app.use(
@@ -59,25 +58,25 @@ app.use(
     console.log(error.message);
 
     if (error instanceof JsonWebTokenError) {
-      res.status(401).json({ error: `Invalid token` });
+      res.status(codes.unAuthorized).json({ error: `Invalid token` });
       return;
     }
 
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
-        res.status(400).json({ error: `Duplicate ${error.meta?.target}` });
+        res.status(codes.badRequest).json({ error: `Duplicate ${error.meta?.target}` });
         return;
       }
 
       if (error.code === "P2003") {
-        res.status(400).json({
+        res.status(codes.badRequest).json({
           error: `Invalid ${error.meta?.field_name} provided`,
         });
         return;
       }
 
       if (error.code === "P2025") {
-        res.status(400).json({
+        res.status(codes.badRequest).json({
           error: error.meta?.modelName
             ? `Couldn't find ${error.meta?.modelName}`
             : error.meta?.cause ?? error.message,
@@ -86,7 +85,7 @@ app.use(
       }
     }
 
-    res.status(error.statusCode ?? 400).json({
+    res.status(error.statusCode ?? codes.badRequest).json({
       error: error.message,
       ...(error.data && { data: error.data }),
     });

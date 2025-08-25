@@ -50,7 +50,7 @@ export const createAssignment = catchAsync(
     const assignment = await prisma.assetAssigned.create({
       data: {
         assetId,
-        assignedById: adminId!,
+        assignedById: adminId,
         assignedDate: assignedDate ? new Date(assignedDate) : new Date(),
         employeeName,
         conditionAtAssignment,
