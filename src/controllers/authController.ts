@@ -95,12 +95,6 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
 
   const password = await bcrypt.hash(unhashedPassword, 12);
 
-  const code = OTP.generate(5, {
-    upperCaseAlphabets: true,
-    specialChars: false,
-    lowerCaseAlphabets: false,
-  });
-
   const permissionSet = new Set([
     ...role.permissions,
     ...requestPermissions,
@@ -125,7 +119,7 @@ export const createAdmin = catchAsync(async (req: Request, res: Response) => {
   await EmailService.sendWelcomeAdminEmail({
     firstName,
     email,
-    password,
+    password: unhashedPassword,
   });
 
   res.status(codes.created).json({

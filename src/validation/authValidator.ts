@@ -15,7 +15,6 @@ export const createAdminValidator = Yup.object().shape({
     .required("Admin phone number is required"),
   password: Yup.string().required("Admin password is required"),
   roleId: Yup.string().required("Admin role is required"),
-  storeId: Yup.string().required("Admin store name is required"),
   permissions: Yup.array().of(Yup.string().required()),
 });
 
