@@ -59,6 +59,7 @@ export const completeRepair = catchAsync(
         repairStatus: "Completed",
         description: remarks,
         updatedAt: new Date(),
+        adminId,
       },
     });
 
