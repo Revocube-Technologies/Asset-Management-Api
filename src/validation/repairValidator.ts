@@ -37,7 +37,11 @@ export const generalMaintenanceValidator = Yup.object().shape({
     .positive("Repair cost must be a positive number")
     .required("Repair cost is required"),
   assetIds: Yup.array()
-    .of(Yup.string().required("Each assetId must be a valid string"))
+    .of(
+      Yup.string()
+        .trim()
+        .required("Each assetId must be a valid string")
+    )
     .min(1, "At least one assetId is required")
     .required("AssetIds are required"),
 });

@@ -11,7 +11,7 @@ async function uploadImageToCloudinary(
   file: Express.Multer.File
 ): Promise<string> {
   const result = await cloudinary.v2.uploader.upload(file.path, {
-    folder: "inventory_items",
+    folder: "asset_items",
   });
   return result.secure_url;
 }

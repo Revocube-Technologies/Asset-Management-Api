@@ -163,39 +163,29 @@ export const getRepairById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
 export const createGeneralMaintenance = catchAsync(
   async (req: Request, res: Response) => {
-    const adminId = req.admin.id;
+    const adminId = req.admin?.id;
 
     if (!adminId) {
       throw new AppError(codes.unAuthorized, "Admin not found in request");
     }
 
     const { description, repairedBy, repairCost, assetIds } =
-      req.body as unknown as TGeneralMaintenanceType;
-
-    const validAssetIds = (assetIds || []).filter(
-      (id): id is string => typeof id === "string" && id.trim().length > 0
-    );
-
-    if (validAssetIds.length === 0) {
-      throw new AppError(
-        codes.badRequest,
-        "At least one valid asset is required"
-      );
-    }
+      req.body as TGeneralMaintenanceType;
 
     const assets = await prisma.asset.findMany({
-      where: { id: { in: validAssetIds }, isDeleted: false },
+      where: { id: { in: assetIds }, isDeleted: false },
       select: { id: true },
     });
 
-    if (assets.length !== validAssetIds.length) {
+    if (assets.length !== assetIds.length) {
       throw new AppError(codes.notFound, "Some assets were not found");
     }
 
     const repairLogs = await prisma.$transaction(
-      validAssetIds.map((assetId) =>
+      assetIds.map((assetId) =>
         prisma.repairLog.create({
           data: {
             description,
