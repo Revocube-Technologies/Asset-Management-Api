@@ -1,7 +1,6 @@
 import { AppError } from "root/src/utils/error";
 import prisma from "root/prisma";
 import { Request, Response } from "express";
-import uploadImageToCloudinary from "root/src/service/imageUploadService";
 import { generateSerialNumber } from "root/src/utils/function";
 import codes from "root/src/utils/statusCode";
 import catchAsync from "root/src/utils/catchAsync";
