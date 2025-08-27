@@ -37,11 +37,9 @@ export const imageFileFilter = (
 };
 
 
-export const uploadAssetImage = (options: Options = {}) =>
-  multer({
+export const uploadAssetImage =   multer({
     storage,
     limits: { fileSize: maxSize },
-    ...options,
   });
 
 export default uploadAssetImage;

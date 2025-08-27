@@ -5,7 +5,7 @@ import {
   getAssetById,
   updateAsset,
   changeAssetStatus,
-  deleteAsset
+  deleteAsset,
 } from "root/src/controllers/assetController";
 import { protectRoute } from "root/src/middlewares/authMiddleware";
 import validateRequestParameters from "root/src/validation";
@@ -14,9 +14,9 @@ import {
   getAllAssetsValidator,
   getAssetByIdValidator,
   updateAssetValidator,
-  changeAssetStatusValidator
+  changeAssetStatusValidator,
 } from "root/src/validation/assetValidator";
-import { upload } from "root/src/config/uploadFiles";
+import { uploadAssetImage } from "root/src/service/imageUploadService";
 
 const assetRouter = Router();
 
@@ -30,7 +30,7 @@ assetRouter.patch(
 assetRouter.post(
   "/create",
   protectRoute,
-  upload.single("imageFile"),
+  uploadAssetImage.single("imageFile"),
   validateRequestParameters(createAssetValidator, "body"),
   createAsset
 );
@@ -50,13 +50,11 @@ assetRouter.get(
 assetRouter.patch(
   "/update-asset/:id",
   protectRoute,
-  upload.single("imageFile"),
+  uploadAssetImage.single("imageFile"),
   validateRequestParameters(updateAssetValidator, "body"),
   updateAsset
 );
 
 assetRouter.delete("/delete-asset/:id", protectRoute, deleteAsset);
-
-
 
 export default assetRouter;
