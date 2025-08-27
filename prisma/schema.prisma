@@ -21,6 +21,8 @@ model Asset {
   notes          String?
   purchaseType   purchaseStatus @default(NEW)
   isDeleted      Boolean        @default(false)
+  createdById   String?
+  updatedById   String?
 
   location    Location?       @relation(fields: [locationId], references: [id])
   assignments AssetAssigned[]

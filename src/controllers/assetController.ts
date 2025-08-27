@@ -28,7 +28,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
 
   let imageUrl = "";
   if (imageFile) {
-    imageUrl = await uploadImageToCloudinary(imageFile);
+    imageUrl = `/uploads/${imageFile.filename}`;
   }
 
   const location = await prisma.location.findUnique({
@@ -53,7 +53,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       locationId,
       notes,
       purchaseType,
-      id: adminId
+      createdById: adminId, 
     },
     include: {
       location: {
@@ -65,6 +65,51 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.created).json({
     status: "success",
     message: `Asset created successfully: ${name} (${serialNumber})`,
+    data: asset,
+  });
+});
+
+
+export const updateAsset = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const adminId = req.admin.id;
+  const {
+    name,
+    type,
+    price,
+    purchaseDate,
+    warrantyExpiry,
+    locationId,
+    notes,
+    purchaseType,
+  } = req.body as unknown as TUpdateAssetType;
+
+  const imageFile = req.file;
+
+  let imageUrl: string | undefined = undefined;
+  if (imageFile) {
+    imageUrl = `/uploads/${imageFile.filename}`;
+  }
+
+  const asset = await prisma.asset.update({
+    where: { id, isDeleted: false },
+    data: {
+      name,
+      type,
+      price,
+      purchaseDate: purchaseDate ? new Date(purchaseDate) : undefined,
+      warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : null,
+      locationId,
+      notes,
+      purchaseType,
+      updatedById: adminId, 
+      ...(imageUrl && { image: imageUrl }), 
+    },
+  });
+
+  res.status(codes.success).json({
+    status: "success",
+    message: "Asset updated successfully",
     data: asset,
   });
 });
@@ -152,51 +197,6 @@ export const getAssetById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const updateAsset = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const adminId = req.admin.id;
-  const {
-    name,
-    type,
-    price,
-    purchaseDate,
-    warrantyExpiry,
-    locationId,
-    notes,
-    purchaseType,
-  } = req.body as unknown as TUpdateAssetType;
-
-  const imageFile = req.file;
-
-  let imageUrl = "";
-  if (imageFile) {
-    imageUrl = await uploadImageToCloudinary(imageFile);
-  }
-
-  const asset = await prisma.asset.update({
-    where: { id, isDeleted: false },
-    data: {
-      name,
-      type,
-      price,
-      purchaseDate: purchaseDate ? new Date(purchaseDate) : undefined,
-      warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : undefined,
-      locationId,
-      notes,
-      purchaseType,
-      id: adminId,
-    },
-  });
-
-  res.status(codes.success).json({
-    status: "success",
-    message: "Asset updated successfully",
-    data: {
-      ...asset,
-      image: imageUrl,
-    },
-  });
-});
 
 export const changeAssetStatus = catchAsync(
   async (req: Request, res: Response) => {
