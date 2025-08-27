@@ -55,9 +55,7 @@ const createSendToken = (
     status,
     message,
     token,
-    data: {
-      user,
-    },
+    data: user,
   });
 };
 
