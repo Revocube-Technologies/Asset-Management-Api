@@ -72,8 +72,6 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-
 export const updateAsset = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const adminId = req.admin.id;
@@ -141,7 +139,6 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
     },
   });
 });
-
 
 export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status, type, locationId } =
