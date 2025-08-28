@@ -183,8 +183,6 @@ export const getRepairById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-
 export const createGeneralMaintenance = catchAsync(
   async (req: Request, res: Response) => {
     const adminId = req.admin?.id;
@@ -205,22 +203,26 @@ export const createGeneralMaintenance = catchAsync(
       throw new AppError(codes.notFound, "Some assets were not found");
     }
 
-    const repairLogs = await prisma.repairLog.createMany({
-      data: assetIds.map((assetId) => ({
+    const repairLogs = await prisma.$transaction(
+    assetIds.map((assetId) =>
+    prisma.repairLog.create({
+      data: {
         description,
         repairedBy,
         repairCost,
         assetId,
         adminId,
-      })),
-    });
+      },
+    })
+  )
+);
 
-    res.status(codes.success).json({
-      status: "success",
-      message: "General maintenance logs created successfully",
-      count: repairLogs.count,
-      data: { repairLogs }  
-      });
+res.status(codes.success).json({
+  status: "success",
+  message: "General maintenance logs created successfully",
+  count: repairLogs.length,
+  data: repairLogs,
+});
   }
 );
 
