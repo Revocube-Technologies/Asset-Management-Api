@@ -23,6 +23,7 @@ model Asset {
   isDeleted      Boolean        @default(false)
   createdById   String?
   updatedById   String?
+  deletedById   String?
 
   location    Location?       @relation(fields: [locationId], references: [id])
   assignments AssetAssigned[]
@@ -112,6 +113,7 @@ model RequestLog {
   requestDate   DateTime      @default(now())
   description   String?
   requestStatus RequestStatus @default(Pending)
+  updatedById   String?
 
   asset      Asset?      @relation(fields: [assetId], references: [id])
   department Department? @relation(fields: [departmentId], references: [id])

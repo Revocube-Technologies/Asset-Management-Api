@@ -30,6 +30,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
     imageUrl = `/uploads/${imageFile.filename}`;
   }
 
+
   const location = await prisma.location.findUnique({
     where: { id: locationId },
     select: { id: true },
@@ -38,6 +39,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
   if (!location) {
     throw new AppError(codes.notFound, "Location not found");
   }
+
 
   const asset = await prisma.asset.create({
     data: {
@@ -52,7 +54,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       locationId,
       notes,
       purchaseType,
-      createdById: adminId, 
+      createdById: adminId,
     },
     include: {
       location: {
@@ -63,15 +65,19 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
 
   res.status(codes.created).json({
     status: "success",
-    message: `Asset created successfully: ${name} (${serialNumber})`,
-    data: asset,
+    message: "Asset created successfully",
+    data: {
+      asset,
+    },
   });
 });
+
 
 
 export const updateAsset = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const adminId = req.admin.id;
+
   const {
     name,
     type,
@@ -84,14 +90,35 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
   } = req.body as unknown as TUpdateAssetType;
 
   const imageFile = req.file;
-
   let imageUrl: string | undefined = undefined;
+
   if (imageFile) {
     imageUrl = `/uploads/${imageFile.filename}`;
   }
 
-  const asset = await prisma.asset.update({
+
+  const existingAsset = await prisma.asset.findFirst({
     where: { id, isDeleted: false },
+  });
+
+  if (!existingAsset) {
+    throw new AppError(codes.notFound, "Asset not found or already deleted");
+  }
+
+
+  if (locationId) {
+    const location = await prisma.location.findUnique({
+      where: { id: locationId },
+      select: { id: true },
+    });
+
+    if (!location) {
+      throw new AppError(codes.notFound, "Location not found");
+    }
+  }
+
+  const updatedAsset = await prisma.asset.update({
+    where: { id },
     data: {
       name,
       type,
@@ -101,17 +128,20 @@ export const updateAsset = catchAsync(async (req: Request, res: Response) => {
       locationId,
       notes,
       purchaseType,
-      updatedById: adminId, 
-      ...(imageUrl && { image: imageUrl }), 
+      updatedById: adminId,
+      ...(imageUrl && { image: imageUrl }),
     },
   });
 
   res.status(codes.success).json({
     status: "success",
     message: "Asset updated successfully",
-    data: asset,
+    data: {
+      asset: updatedAsset,
+    },
   });
 });
+
 
 export const getAllAssets = catchAsync(async (req: Request, res: Response) => {
   const { page, perPage, status, type, locationId } =
@@ -158,20 +188,7 @@ export const getAssetById = catchAsync(async (req: Request, res: Response) => {
 
   const asset = await prisma.asset.findFirst({
     where: { id, isDeleted: false },
-    select: {
-      id: true,
-      name: true,
-      type: true,
-      serialNumber: true,
-      price: true,
-      purchaseDate: true,
-      warrantyExpiry: true,
-      status: true,
-      image: true,
-      notes: true,
-      purchaseType: true,
-      createdAt: true,
-      updatedAt: true,
+    include: {
       location: {
         select: {
           id: true,
@@ -192,42 +209,68 @@ export const getAssetById = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.success).json({
     status: "success",
     message: "Asset retrieved successfully",
-    data: asset,
+    data: {
+      asset,
+    },
   });
 });
 
 
-export const changeAssetStatus = catchAsync(
-  async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const { status } = req.body as unknown as TChangeAssetStatusType;
-    const adminId = req.admin.id;
+export const changeAssetStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body as unknown as TChangeAssetStatusType;
+  const adminId = req.admin.id;
 
-    const asset = await prisma.asset.update({
-      where: { id, isDeleted: false },
-      data: { status, id: adminId },
-    });
 
-    res.status(codes.success).json({
-      status: "success",
-      message: "Asset status updated successfully",
-      data: {
-        asset,
-      },
-    });
+  const existingAsset = await prisma.asset.findFirst({
+    where: { id, isDeleted: false },
+  });
+
+  if (!existingAsset) {
+    throw new AppError(codes.notFound, "Asset not found or already deleted");
   }
-);
+
+
+  const asset = await prisma.asset.update({
+    where: { id },
+    data: {
+      status,
+      updatedById: adminId,
+    },
+  });
+
+  res.status(codes.success).json({
+    status: "success",
+    message: "Asset status updated successfully",
+    data: {
+      asset,
+    },
+  });
+});
+
 
 export const deleteAsset = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const adminId = req.admin?.id;
 
-  const asset = await prisma.asset.update({
+  const existingAsset = await prisma.asset.findFirst({
     where: { id, isDeleted: false },
-    data: { isDeleted: true, id: adminId },
   });
 
-  res.status(codes.noContent).json({
+  if (!existingAsset) {
+    throw new AppError(codes.notFound, "Asset not found or already deleted");
+  }
+
+
+  const asset = await prisma.asset.update({
+    where: { id },
+    data: {
+      isDeleted: true,
+      deletedById: adminId, 
+    },
+  });
+
+  res.status(codes.success).json({
     status: "success",
     message: "Asset deleted successfully",
     data: {

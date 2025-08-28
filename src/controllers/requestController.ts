@@ -47,7 +47,7 @@ export const createRequest = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.created).json({
     status: "success",
     message: "Request created successfully",
-    data: request,
+    data: { request },
   });
 });
 
@@ -75,6 +75,7 @@ export const updateRequestStatus = catchAsync(
       data: {
         requestStatus: status,
         updatedAt: new Date(),
+        updatedById: adminId,
       },
     });
 
@@ -98,7 +99,7 @@ export const updateRequestStatus = catchAsync(
     res.status(codes.success).json({
       status: "success",
       message: `Request updated to ${status}`,
-      data: updatedRequest,
+      data: { request: updatedRequest },
     });
   }
 );
@@ -115,8 +116,12 @@ export const getAllRequests = catchAsync(
       ...(minDate || maxDate
         ? {
             requestDate: {
-              ...(minDate && { gte: new Date(minDate) }),
-              ...(maxDate && { lte: new Date(maxDate) }),
+              ...(minDate && !isNaN(new Date(minDate).getTime()) && {
+                gte: new Date(minDate),
+               }),
+              ...(maxDate && !isNaN(new Date(maxDate).getTime()) && {
+                lte: new Date(maxDate),
+              }),
             },
           }
         : {}),
@@ -183,7 +188,7 @@ export const getRequestById = catchAsync(
     res.status(codes.success).json({
       status: "success",
       message: "Request retrieved successfully",
-      data: request,
+      data: { request },
     });
   }
 );

@@ -6,7 +6,6 @@ import catchAsync from "root/src/utils/catchAsync";
 import {TCreateAssignmentType, TGetAllAssignmentsType, TReturnAssetType} from "root/src/validation/assignmentValidator";
 import {generatePaginationQuery, generatePaginationMeta} from "root/src/utils/query";
 
-
 export const createAssignment = catchAsync(
   async (req: Request, res: Response) => {
     const adminId = req.admin.id;
@@ -58,11 +57,13 @@ export const createAssignment = catchAsync(
     });
 
     res.status(codes.created).json({
-      status: "success",
-      message: "Assignment created successfully",
-      data: assignment,
-    });
-  }
+  status: "success",
+  message: "Assignment created successfully",
+  data: {
+    assignment,
+  },
+});
+}
 );
 
 export const returnAsset = catchAsync(async (req: Request, res: Response) => {
@@ -98,11 +99,13 @@ export const returnAsset = catchAsync(async (req: Request, res: Response) => {
     data: { status: "Available" },
   });
 
-  res.status(codes.success).json({
-    status: "success",
-    message: "Asset returned successfully",
-    data: updatedAssignment,
-  });
+res.status(codes.success).json({
+  status: "success",
+  message: "Asset returned successfully",
+  data: {
+    assignment: updatedAssignment,
+  },
+});
 });
 
 export const getAllAssignments = catchAsync(
@@ -112,15 +115,7 @@ export const getAllAssignments = catchAsync(
     const totalAssignments = await prisma.assetAssigned.count();
 
     const assignments = await prisma.assetAssigned.findMany({
-      select: {
-        id: true,
-        employeeName: true,
-        assignedDate: true,
-        returnDate: true,
-        conditionAtAssignment: true,
-        conditionAtReturn: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         asset: {
           select: {
             id: true,
@@ -185,10 +180,12 @@ export const getAssignmentById = catchAsync(
       throw new AppError(codes.notFound, "Assignment not found");
     }
 
-    res.status(codes.success).json({
-      status: "success",
-      message: "Assignment retrieved successfully",
-      data: assignment,
-    });
+   res.status(codes.success).json({
+  status: "success",
+  message: "Assignment retrieved successfully",
+  data: {
+    assignment,
+  },
+});
   }
 );
