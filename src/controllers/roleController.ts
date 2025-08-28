@@ -6,10 +6,14 @@ import { AppError } from "root/src/utils/error";
 import {PERMISSIONS, COMPULSORY_PERMISSIONS} from "root/src/assets/permissions";
 import {CreateRoleType, UpdateRoleType} from "root/src/validation/roleValidator";
 
-
 export const createRole = catchAsync(async (req: Request, res: Response) => {
   const { name, permissions: requestPermissions } =
     req.body as unknown as CreateRoleType;
+
+    const existingRole = await prisma.role.findUnique({ where: { name } });
+if (existingRole) {
+  throw new AppError(codes.badRequest, "Role name already exists");
+}
 
   const permissionSet = new Set([
     ...requestPermissions,
@@ -58,30 +62,32 @@ export const getRoles = catchAsync(async (_req: Request, res: Response) => {
   });
 });
 
-
 export const deleteRole = catchAsync(
   async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
     const role = await prisma.role.findUnique({ where: { id } });
-    if (!role) throw new AppError(codes.notFound, "Admin not found.");
+    if (!role) throw new AppError(codes.notFound, "Role not found");
 
     await prisma.role.update({
       where: { id },
       data: { isDeleted: true },
     });
 
-    res.status(codes.noContent).json({
-      message: "Role Deleted Successfully.",
+    res.status(codes.success).json({
+      status: "success",
+      message: "Role deleted successfully",
     });
   }
 );
 
+
 export const getAllPermissions = catchAsync(
   async (req: Request, res: Response) => {
-    res.status(codes.success).json({
-      message: "Permissions returned successfully",
-      data: PERMISSIONS,
-    });
+   res.status(codes.success).json({
+  status: "success",
+  message: "Permissions returned successfully",
+  data: PERMISSIONS,
+});
   }
 );

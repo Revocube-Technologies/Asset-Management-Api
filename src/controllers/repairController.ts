@@ -25,6 +25,16 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
   const asset = await prisma.asset.findUnique({ where: { id: assetId } });
   if (!asset) throw new AppError(codes.notFound, "Asset not found");
 
+  const existingRepair = await prisma.repairLog.findFirst({
+    where: { assetId, repairStatus: { in: ["Pending", "InProgress"] } },
+  });
+  if (existingRepair) {
+    throw new AppError(
+      codes.conflict,
+      "This asset already has an active repair log"
+    );
+  }
+
   const repair = await prisma.repairLog.create({
     data: {
       adminId,
@@ -122,7 +132,7 @@ export const getRepairs = catchAsync(async (req: Request, res: Response) => {
     status: "success",
     message: "Repairs retrieved successfully",
     data: {
-      ...pagination,
+      pagination,
       repairs,
     },
   });
@@ -173,6 +183,8 @@ export const getRepairById = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+
 export const createGeneralMaintenance = catchAsync(
   async (req: Request, res: Response) => {
     const adminId = req.admin?.id;
@@ -193,25 +205,22 @@ export const createGeneralMaintenance = catchAsync(
       throw new AppError(codes.notFound, "Some assets were not found");
     }
 
-    const repairLogs = await prisma.$transaction(
-      assetIds.map((assetId) =>
-        prisma.repairLog.create({
-          data: {
-            description,
-            repairedBy,
-            repairCost,
-            assetId,
-            adminId,
-          },
-        })
-      )
-    );
+    const repairLogs = await prisma.repairLog.createMany({
+      data: assetIds.map((assetId) => ({
+        description,
+        repairedBy,
+        repairCost,
+        assetId,
+        adminId,
+      })),
+    });
 
     res.status(codes.success).json({
       status: "success",
       message: "General maintenance logs created successfully",
-      count: repairLogs.length,
-      data: repairLogs,
-    });
+      count: repairLogs.count,
+      data: { repairLogs }  
+      });
   }
 );
+
