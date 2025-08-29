@@ -169,12 +169,13 @@ export const loginAdmin = catchAsync(async (req: Request, res: Response) => {
 
 export const adminForgotPassword = catchAsync(
   async (req: Request, res: Response) => {
-    const { email } = req.body as unknown as TForgotPasswordType;
+    const { email } = req.body as TForgotPasswordType;
 
-    const admin = await prisma.admin.findUnique({ where: { email: email } });
+    const admin = await prisma.admin.findUnique({ where: { email } });
 
-    if (!admin)
+    if (!admin) {
       throw new AppError(codes.notFound, "Admin Username/Email not found");
+    }
 
     const { resetToken, hashedToken, tokenExpiration } =
       await generateResetToken();
@@ -187,9 +188,7 @@ export const adminForgotPassword = catchAsync(
       },
     });
 
-    const passwordResetUrl = getFrontendUrl(
-      `/api/v1/admin/auth/reset-password/:${resetToken}}`
-    );
+    const passwordResetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
     await EmailService.sendAdminResetPassword({
       email: admin.email,
@@ -199,14 +198,11 @@ export const adminForgotPassword = catchAsync(
 
     res.status(codes.success).json({
       status: "success",
-      message: `Password reset token sent to ${admin.email}`,
-      data: {
-        resetToken,
-        setUrl: passwordResetUrl,
-      },
+      message: `Password reset instructions sent to ${admin.email}`,
     });
   }
 );
+
 
 export const adminResetPassword = catchAsync(
   async (req: Request, res: Response) => {
