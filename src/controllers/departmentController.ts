@@ -30,7 +30,7 @@ export const createDepartment = catchAsync(
     res.status(codes.created).json({
       status: "success",
       message: "Department created successfully",
-      data: department,
+      data: {department},
     });
   }
 );
@@ -51,7 +51,7 @@ export const getDepartment = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.success).json({
     status: "success",
     message: "Department retrieved successfully",
-    department,
+    data: { department },
   });
 });
 
@@ -86,7 +86,7 @@ export const getAllDepartments = catchAsync(
       message: "Departments retrieved successfully",
       data:{
       pagination,
-      departments
+      data: { departments },
      } 
     });
   });
@@ -108,7 +108,7 @@ export const updateDepartment = catchAsync(
     res.status(codes.success).json({
       status: "success",
       message: "Department updated successfully",
-      department,
+      data: { department },
     });
   }
 );

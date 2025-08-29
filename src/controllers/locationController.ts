@@ -123,7 +123,7 @@ export const deleteLocation = catchAsync(
       data: { isDeleted: true },
     });
 
-    res.status(codes.noContent).json({
+    res.status(codes.success).json({
       status: "success",
       message: "Location soft deleted successfully",
       location,
