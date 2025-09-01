@@ -25,6 +25,22 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
   const asset = await prisma.asset.findUnique({ where: { id: assetId } });
   if (!asset) throw new AppError(codes.notFound, "Asset not found");
 
+
+  const requestLog = await prisma.requestLog.findUnique({
+    where: { id: requestLogId },
+  });
+
+  if (!requestLog) {
+    throw new AppError(codes.notFound, "Request log not found");
+  }
+
+  if (requestLog.requestStatus !== "Approved") {
+    throw new AppError(
+      codes.badRequest,
+      "Request log must be approved before logging a repair"
+    );
+  }
+
   const existingRepair = await prisma.repairLog.findFirst({
     where: { assetId, repairStatus: { in: ["Pending", "InProgress"] } },
   });
@@ -47,6 +63,7 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
     },
   });
 
+
   await prisma.asset.update({
     where: { id: assetId },
     data: { status: "UnderRepair" },
@@ -55,9 +72,10 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.success).json({
     status: "success",
     message: "Repair logged successfully",
-    data: { repair, }
+    data: { repair },
   });
 });
+
 
 export const completeRepair = catchAsync(
   async (req: Request, res: Response) => {

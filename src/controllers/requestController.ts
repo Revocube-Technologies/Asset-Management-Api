@@ -85,15 +85,15 @@ export const updateRequestStatus = catchAsync(
         data: { status: "UnderRepair" },
       });
 
-      await prisma.repairLog.create({
-        data: {
-          assetId: request.assetId,
-          requestLogId: request.id,
-          adminId,
-          repairDate: new Date(),
-          repairStatus: "InProgress",
-        },
-      });
+      // await prisma.repairLog.create({
+      //   data: {
+      //     assetId: request.assetId,
+      //     requestLogId: request.id,
+      //     adminId,
+      //     repairDate: new Date(),
+      //     repairStatus: "InProgress",
+      //   },
+      // });
     }
 
     res.status(codes.success).json({

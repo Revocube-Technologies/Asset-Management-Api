@@ -114,6 +114,7 @@ model RequestLog {
   description   String?
   requestStatus RequestStatus @default(Pending)
   updatedById   String?
+  
 
   asset      Asset?      @relation(fields: [assetId], references: [id])
   department Department? @relation(fields: [departmentId], references: [id])
