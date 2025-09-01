@@ -84,16 +84,6 @@ export const updateRequestStatus = catchAsync(
         where: { id: request.assetId },
         data: { status: "UnderRepair" },
       });
-
-      // await prisma.repairLog.create({
-      //   data: {
-      //     assetId: request.assetId,
-      //     requestLogId: request.id,
-      //     adminId,
-      //     repairDate: new Date(),
-      //     repairStatus: "InProgress",
-      //   },
-      // });
     }
 
     res.status(codes.success).json({
