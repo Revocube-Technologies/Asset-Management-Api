@@ -10,7 +10,7 @@ const assetsDir = path.join(__dirname, "../../uploads/assets/");
 if (!fs.existsSync(assetsDir)) {
   fs.mkdirSync(assetsDir, { recursive: true });
 }
-
+ 
 const storage = multer.diskStorage({
   destination: function (_req, _file, cb) {
     cb(null, assetsDir);

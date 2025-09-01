@@ -245,7 +245,6 @@ export const changeAssetStatus = catchAsync(async (req: Request, res: Response) 
   });
 });
 
-
 export const deleteAsset = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const adminId = req.admin?.id;

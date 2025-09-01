@@ -55,7 +55,7 @@ export const logRepair = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.success).json({
     status: "success",
     message: "Repair logged successfully",
-    data: repair,
+    data: { repair, }
   });
 });
 
@@ -90,7 +90,7 @@ export const completeRepair = catchAsync(
     res.status(codes.success).json({
       status: "success",
       message: "Repair marked as completed",
-      data: updatedRepair,
+      data: { updatedRepair, }
     });
   }
 );
@@ -179,7 +179,7 @@ export const getRepairById = catchAsync(async (req: Request, res: Response) => {
   res.status(codes.success).json({
     status: "success",
     message: "Repair log retrieved successfully",
-    data: repair,
+    data: { repair, }
   });
 });
 
@@ -221,7 +221,7 @@ res.status(codes.success).json({
   status: "success",
   message: "General maintenance logs created successfully",
   count: repairLogs.length,
-  data: repairLogs,
+  data: { repairLogs, }
 });
   }
 );
