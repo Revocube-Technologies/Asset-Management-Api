@@ -118,7 +118,6 @@ export const getAllAssignments = catchAsync(
       include: {
         asset: {
           select: {
-            id: true,
             name: true,
             serialNumber: true,
             status: true,
@@ -126,16 +125,14 @@ export const getAllAssignments = catchAsync(
         },
         department: {
           select: {
-            id: true,
             name: true,
           },
         },
         assignedBy: {
           select: {
-            id: true,
             firstName: true,
             lastName: true,
-            email: true,
+          
           },
         },
       },
