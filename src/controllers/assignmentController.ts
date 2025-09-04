@@ -56,7 +56,7 @@ export const createAssignment = catchAsync(
       data: { status: "Assigned" },
     });
 
-    res.status(codes.created).json({
+  res.status(codes.created).json({
   status: "success",
   message: "Assignment created successfully",
   data: {
@@ -118,6 +118,7 @@ export const getAllAssignments = catchAsync(
       include: {
         asset: {
           select: {
+            id: true,
             name: true,
             serialNumber: true,
             status: true,
@@ -130,6 +131,7 @@ export const getAllAssignments = catchAsync(
         },
         assignedBy: {
           select: {
+            id: true,
             firstName: true,
             lastName: true,
           

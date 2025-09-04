@@ -13,6 +13,9 @@ export const createAssetValidator = Yup.object().shape({
   purchaseType: Yup.string()
     .oneOf(Object.values(purchaseStatus))
     .required("Asset purchase type is required"),
+  status: Yup.string()
+    .oneOf(Object.values(AssetStatus))
+    .required("Asset status is required"),
 });
 
 export const getAllAssetsValidator = Yup.object().shape({

@@ -20,6 +20,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
     locationId,
     notes,
     purchaseType,
+    status,
   } = req.body as unknown as TCreateAssetType;
 
   const imageFile = req.file;
@@ -50,7 +51,7 @@ export const createAsset = catchAsync(async (req: Request, res: Response) => {
       image: imageUrl,
       purchaseDate: new Date(purchaseDate),
       warrantyExpiry: warrantyExpiry ? new Date(warrantyExpiry) : null,
-      status: "Available",
+      status,
       locationId,
       notes,
       purchaseType,
@@ -196,6 +197,7 @@ export const getAssetById = catchAsync(async (req: Request, res: Response) => {
       assignments: true,
       repairs: true,
       RequestLog: true,
+      
     },
   });
 
